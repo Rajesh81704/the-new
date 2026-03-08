@@ -10,6 +10,7 @@ import EventsPage from "./pages/EventsPage";
 import MembersPage from "./pages/MembersPage";
 import PodcastPage from "./pages/PodcastPage";
 import TermsPage from "./pages/TermsPage";
+import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/members" element={<MembersPage />} />
             <Route path="/podcast" element={<PodcastPage />} />
             <Route path="/terms" element={<TermsPage />} />
+            <Route path="/profile/:id" element={<ProfilePage />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
