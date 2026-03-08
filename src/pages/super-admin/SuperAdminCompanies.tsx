@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, MoreVertical, Building2, Search } from "lucide-react";
+import { Plus, MoreVertical, Building2, Search, LogIn } from "lucide-react";
 import { toast } from "sonner";
 
 const ALL_MODULES = [
