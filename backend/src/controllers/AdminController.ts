@@ -1,0 +1,64 @@
+import { Request, Response } from 'express';
+import { BaseController } from './BaseController';
+import { AdminService } from '../services/adminService';
+
+export class AdminController extends BaseController {
+    private adminService: AdminService;
+
+    constructor() {
+        super();
+        this.adminService = new AdminService();
+    }
+
+    async getEvents(req: Request, res: Response): Promise<void> {
+        try {
+            const companyId = (req as any).user?.companyId || 'default-company-id';
+            const events = await this.adminService.getEvents(companyId);
+            this.handleSuccess(res, events);
+        } catch (error) {
+            this.handleError(error, res, 'AdminController.getEvents');
+        }
+    }
+
+    async createEvent(req: Request, res: Response): Promise<void> {
+        try {
+            const companyId = (req as any).user?.companyId || 'default-company-id';
+            const { title, description, eventDate, location } = req.body;
+            const event = await this.adminService.createEvent(companyId, {
+                title,
+                description,
+                eventDate: new Date(eventDate),
+                location,
+            });
+            this.handleSuccess(res, event, 201);
+        } catch (error) {
+            this.handleError(error, res, 'AdminController.createEvent');
+        }
+    }
+
+    async getBlogs(req: Request, res: Response): Promise<void> {
+        try {
+            const companyId = (req as any).user?.companyId || 'default-company-id';
+            const blogs = await this.adminService.getBlogs(companyId);
+            this.handleSuccess(res, blogs);
+        } catch (error) {
+            this.handleError(error, res, 'AdminController.getBlogs');
+        }
+    }
+
+    async createBlog(req: Request, res: Response): Promise<void> {
+        try {
+            const companyId = (req as any).user?.companyId || 'default-company-id';
+            const { title, description, content, status } = req.body;
+            const blog = await this.adminService.createBlog(companyId, {
+                title,
+                description,
+                content,
+                status,
+            });
+            this.handleSuccess(res, blog, 201);
+        } catch (error) {
+            this.handleError(error, res, 'AdminController.createBlog');
+        }
+    }
+}
