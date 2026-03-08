@@ -12,10 +12,12 @@ app.use(express.json());
 import authRoutes from './routes/authRoutes';
 import postRoutes from './routes/postRoutes';
 import adminRoutes from './routes/adminRoutes';
+import superAdminRoutes from './routes/superAdminRoutes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/feed', postRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/super-admin', superAdminRoutes);
 
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
