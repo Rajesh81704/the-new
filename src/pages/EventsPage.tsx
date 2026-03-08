@@ -78,6 +78,7 @@ const events = [
 
 const EventsPage = () => {
   return (
+    <div className="min-h-screen bg-section-amber/40">
     <div className="max-w-lg mx-auto px-4 py-4 space-y-4">
       <div>
         <h2 className="font-heading font-bold text-xl text-foreground">Events</h2>
@@ -88,6 +89,7 @@ const EventsPage = () => {
           <EventCard key={event.title} index={i} {...event} />
         ))}
       </div>
+    </div>
     </div>
   );
 };

@@ -122,6 +122,7 @@ const BlogDetailPage = () => {
   const avatar = avatars[blog.authorInitials];
 
   return (
+    <div className="min-h-screen bg-section-emerald/40">
     <div className="max-w-lg mx-auto px-4 py-4 pb-24">
       <button onClick={() => navigate("/blogs")} className="btn-ghost flex items-center gap-1.5 -ml-3 mb-4">
         <ArrowLeft className="w-4 h-4" />
@@ -181,6 +182,7 @@ const BlogDetailPage = () => {
           </Button>
         </div>
       </motion.article>
+    </div>
     </div>
   );
 };

@@ -65,6 +65,7 @@ const BlogsPage = () => {
   };
 
   return (
+    <div className="min-h-screen bg-section-emerald/40">
     <div className="px-4 py-6 pb-24 max-w-lg mx-auto space-y-5">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="font-heading text-2xl font-bold text-foreground">Blogs</h1>
@@ -207,6 +208,7 @@ const BlogsPage = () => {
           })
         )}
       </div>
+    </div>
     </div>
   );
 };

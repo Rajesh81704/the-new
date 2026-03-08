@@ -64,6 +64,15 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        section: {
+          teal: "hsl(var(--section-teal))",
+          amber: "hsl(var(--section-amber))",
+          blue: "hsl(var(--section-blue))",
+          rose: "hsl(var(--section-rose))",
+          violet: "hsl(var(--section-violet))",
+          emerald: "hsl(var(--section-emerald))",
+          sky: "hsl(var(--section-sky))",
+        },
       },
       borderRadius: {
         "2xl": "1rem",

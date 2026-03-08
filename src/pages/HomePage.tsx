@@ -131,6 +131,7 @@ const HomePage = () => {
   const { posts } = usePosts();
 
   return (
+    <div className="min-h-screen bg-section-teal/40">
     <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
       <div className="mb-2">
         <h2 className="font-heading font-bold text-xl text-foreground">Feed</h2>
@@ -146,6 +147,7 @@ const HomePage = () => {
       {feedData.map((item, i) => (
         <FeedCard key={i} index={i + posts.length} {...item} />
       ))}
+    </div>
     </div>
   );
 };

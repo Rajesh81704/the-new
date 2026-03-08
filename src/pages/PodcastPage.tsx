@@ -11,6 +11,7 @@ const podcasts = [
 
 const PodcastPage = () => {
   return (
+    <div className="min-h-screen bg-section-rose/40">
     <div className="max-w-lg mx-auto px-4 py-4 space-y-4">
       <div>
         <h2 className="font-heading font-bold text-xl text-foreground">Podcasts</h2>
@@ -21,6 +22,7 @@ const PodcastPage = () => {
           <PodcastCard key={p.title} index={i} {...p} />
         ))}
       </div>
+    </div>
     </div>
   );
 };
