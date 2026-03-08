@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Briefcase, MapPin, Phone, Mail, Globe, Calendar, ExternalLink, Pencil, X, Save } from "lucide-react";
+import { ArrowLeft, Briefcase, MapPin, Phone, Mail, Globe, Calendar, ExternalLink, Pencil, X, Save, Share2 } from "lucide-react";
 import { useMyProfile, MyProfile } from "@/lib/profileContext";
 import { toast } from "sonner";
 
