@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { PostsProvider } from "@/lib/postsContext";
+import { ProfileProvider } from "@/lib/profileContext";
 import HomePage from "./pages/HomePage";
 import FriendsPage from "./pages/FriendsPage";
 import EventsPage from "./pages/EventsPage";
@@ -21,26 +22,28 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <PostsProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/friends" element={<FriendsPage />} />
-              <Route path="/events" element={<EventsPage />} />
-              <Route path="/members" element={<MembersPage />} />
-              <Route path="/podcast" element={<PodcastPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="/profile/:id" element={<ProfilePage />} />
-              <Route path="/my-feed" element={<MyFeedPage />} />
-              <Route path="/my-profile" element={<MyProfilePage />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </PostsProvider>
+      <ProfileProvider>
+        <PostsProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route element={<AppLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/friends" element={<FriendsPage />} />
+                <Route path="/events" element={<EventsPage />} />
+                <Route path="/members" element={<MembersPage />} />
+                <Route path="/podcast" element={<PodcastPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/profile/:id" element={<ProfilePage />} />
+                <Route path="/my-feed" element={<MyFeedPage />} />
+                <Route path="/my-profile" element={<MyProfilePage />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </PostsProvider>
+      </ProfileProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
