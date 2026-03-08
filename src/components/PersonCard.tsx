@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { avatars } from "@/lib/avatars";
 
 interface PersonCardProps {
   initials: string;
@@ -12,6 +13,7 @@ interface PersonCardProps {
 
 export const PersonCard = ({ initials, name, role, company, connected = false, index }: PersonCardProps) => {
   const [isConnected, setIsConnected] = useState(connected);
+  const avatarSrc = avatars[initials];
 
   return (
     <motion.div
@@ -20,8 +22,12 @@ export const PersonCard = ({ initials, name, role, company, connected = false, i
       transition={{ delay: index * 0.06, duration: 0.3 }}
       className="card-interactive p-4 flex items-center gap-3"
     >
-      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-heading font-bold text-sm shrink-0">
-        {initials}
+      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-heading font-bold text-sm shrink-0 overflow-hidden">
+        {avatarSrc ? (
+          <img src={avatarSrc} alt={name} className="w-full h-full object-cover" />
+        ) : (
+          initials
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <p className="font-heading font-semibold text-sm text-foreground truncate">{name}</p>

@@ -1,6 +1,7 @@
 import { Heart, MessageCircle, Share2 } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { avatars } from "@/lib/avatars";
 
 interface FeedCardProps {
   avatar: string;
@@ -23,6 +24,8 @@ export const FeedCard = ({ avatar, name, role, content, image, likes, comments, 
     setLikeCount(liked ? likeCount - 1 : likeCount + 1);
   };
 
+  const avatarSrc = avatars[avatar];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -32,7 +35,11 @@ export const FeedCard = ({ avatar, name, role, content, image, likes, comments, 
     >
       <div className="flex items-start gap-3 mb-3">
         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-heading font-bold text-sm shrink-0 overflow-hidden">
-          {avatar}
+          {avatarSrc ? (
+            <img src={avatarSrc} alt={name} className="w-full h-full object-cover" />
+          ) : (
+            avatar
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-heading font-semibold text-sm text-foreground">{name}</p>
@@ -44,8 +51,14 @@ export const FeedCard = ({ avatar, name, role, content, image, likes, comments, 
       <p className="text-sm text-foreground/85 leading-relaxed mb-3">{content}</p>
 
       {image && (
-        <div className="rounded-xl overflow-hidden mb-3 bg-muted aspect-video flex items-center justify-center">
-          <span className="text-xs text-muted-foreground">{image}</span>
+        <div className="rounded-xl overflow-hidden mb-3 bg-muted aspect-video">
+          {typeof image === "string" && image.startsWith("/") || image.includes("assets") ? (
+            <img src={image} alt="Post media" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-xs text-muted-foreground">{image}</span>
+            </div>
+          )}
         </div>
       )}
 

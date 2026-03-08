@@ -1,4 +1,7 @@
 import { FeedCard } from "@/components/FeedCard";
+import feedFunding from "@/assets/feed-funding.jpg";
+import feedPodcast from "@/assets/feed-podcast.jpg";
+import feedSummit from "@/assets/feed-summit.jpg";
 
 const feedData = [
   {
@@ -7,6 +10,7 @@ const feedData = [
     role: "CEO at Nexora Labs",
     content: "Thrilled to announce our Series A funding! Looking forward to connecting with more founders at next week's networking mixer. 🚀",
     tag: "Update",
+    image: feedFunding,
     likes: 42,
     comments: 8,
   },
@@ -16,7 +20,7 @@ const feedData = [
     role: "Marketing Director",
     content: "Just published a new episode of The Growth Loop podcast discussing retention strategies for SaaS products. Give it a listen!",
     tag: "Podcast",
-    image: "🎙️ The Growth Loop — Episode 24",
+    image: feedPodcast,
     likes: 28,
     comments: 5,
   },
@@ -25,6 +29,7 @@ const feedData = [
     name: "Jessica Park",
     role: "UX Designer at Craft Studio",
     content: "Great conversations at yesterday's Design Leadership Summit. The panel on inclusive design was outstanding. Who else was there?",
+    image: feedSummit,
     likes: 35,
     comments: 12,
   },
