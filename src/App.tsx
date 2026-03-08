@@ -15,6 +15,8 @@ import TermsPage from "./pages/TermsPage";
 import ProfilePage from "./pages/ProfilePage";
 import MyFeedPage from "./pages/MyFeedPage";
 import MyProfilePage from "./pages/MyProfilePage";
+import ResourcesPage from "./pages/ResourcesPage";
+import BlogsPage from "./pages/BlogsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
