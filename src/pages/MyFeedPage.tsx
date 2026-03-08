@@ -1,5 +1,5 @@
 import { usePosts } from "@/lib/postsContext";
-import { Heart, Share2 } from "lucide-react";
+import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
