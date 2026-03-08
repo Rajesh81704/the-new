@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { User, LogOut, FileText, X } from "lucide-react";
+import { User, LogOut, FileText, X, Newspaper } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 export const AppHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -41,6 +43,13 @@ export const AppHeader = () => {
                 <p className="font-heading font-semibold text-sm text-foreground">Alex Johnson</p>
                 <p className="text-xs text-muted-foreground">Product Designer</p>
               </div>
+              <button
+                onClick={() => { setMenuOpen(false); navigate("/my-feed"); }}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-foreground hover:bg-muted transition-colors w-full text-left"
+              >
+                <Newspaper className="w-4 h-4 text-muted-foreground" />
+                My Feed
+              </button>
               <a
                 href="/terms"
                 onClick={() => setMenuOpen(false)}
