@@ -19,6 +19,13 @@ import MyProfilePage from "./pages/MyProfilePage";
 import ResourcesPage from "./pages/ResourcesPage";
 import BlogsPage from "./pages/BlogsPage";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminMembers from "./pages/admin/AdminMembers";
+import AdminEvents from "./pages/admin/AdminEvents";
+import AdminPodcasts from "./pages/admin/AdminPodcasts";
+import AdminBlogs from "./pages/admin/AdminBlogs";
+import AdminResources from "./pages/admin/AdminResources";
+import AdminTerms from "./pages/admin/AdminTerms";
 
 const queryClient = new QueryClient();
 
