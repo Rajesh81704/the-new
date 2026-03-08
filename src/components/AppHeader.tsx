@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { User, LogOut, FileText, Newspaper, UserCircle } from "lucide-react";
+import { User, LogOut, FileText, Newspaper, UserCircle, BookOpen, PenLine } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
@@ -56,6 +56,20 @@ export const AppHeader = () => {
               >
                 <Newspaper className="w-4 h-4 text-muted-foreground" />
                 My Feed
+              </button>
+              <button
+                onClick={() => { setMenuOpen(false); navigate("/resources"); }}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-foreground hover:bg-muted transition-colors w-full text-left"
+              >
+                <BookOpen className="w-4 h-4 text-muted-foreground" />
+                Resources & Materials
+              </button>
+              <button
+                onClick={() => { setMenuOpen(false); navigate("/blogs"); }}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-foreground hover:bg-muted transition-colors w-full text-left"
+              >
+                <PenLine className="w-4 h-4 text-muted-foreground" />
+                Blogs
               </button>
               <a
                 href="/terms"
