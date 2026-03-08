@@ -7,6 +7,7 @@ import { AppLayout } from "@/components/AppLayout";
 import { AdminLayout } from "@/components/AdminLayout";
 import { PostsProvider } from "@/lib/postsContext";
 import { ProfileProvider } from "@/lib/profileContext";
+import { BusinessCardProvider } from "@/lib/businessCardContext";
 import HomePage from "./pages/HomePage";
 import FriendsPage from "./pages/FriendsPage";
 import EventsPage from "./pages/EventsPage";
@@ -18,6 +19,8 @@ import MyFeedPage from "./pages/MyFeedPage";
 import MyProfilePage from "./pages/MyProfilePage";
 import ResourcesPage from "./pages/ResourcesPage";
 import BlogsPage from "./pages/BlogsPage";
+import ShareBusinessPage from "./pages/ShareBusinessPage";
+import PublicCardPage from "./pages/PublicCardPage";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminMembers from "./pages/admin/AdminMembers";
@@ -40,6 +43,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <ProfileProvider>
+        <BusinessCardProvider>
         <PostsProvider>
           <Toaster />
           <Sonner />
@@ -57,6 +61,7 @@ const App = () => (
                 <Route path="/my-profile" element={<MyProfilePage />} />
                 <Route path="/resources" element={<ResourcesPage />} />
                 <Route path="/blogs" element={<BlogsPage />} />
+                <Route path="/share-business" element={<ShareBusinessPage />} />
               </Route>
               <Route element={<AdminLayout />}>
                 <Route path="/admin" element={<AdminDashboard />} />
@@ -75,10 +80,12 @@ const App = () => (
                 <Route path="/super-admin/billing" element={<SuperAdminBilling />} />
                 <Route path="/super-admin/settings" element={<SuperAdminSettings />} />
               </Route>
+              <Route path="/card/:id" element={<PublicCardPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </PostsProvider>
+        </BusinessCardProvider>
       </ProfileProvider>
     </TooltipProvider>
   </QueryClientProvider>

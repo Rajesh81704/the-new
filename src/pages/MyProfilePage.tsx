@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Briefcase, MapPin, Phone, Mail, Globe, Calendar, ExternalLink, Pencil, X, Save } from "lucide-react";
+import { ArrowLeft, Briefcase, MapPin, Phone, Mail, Globe, Calendar, ExternalLink, Pencil, X, Save, Share2 } from "lucide-react";
 import { useMyProfile, MyProfile } from "@/lib/profileContext";
 import { toast } from "sonner";
 
@@ -100,10 +100,16 @@ const MyProfilePage = () => {
         )}
 
         {!editing && (
-          <button onClick={startEdit} className="btn-secondary flex items-center gap-1.5 text-xs mx-auto mt-4">
-            <Pencil className="w-3.5 h-3.5" />
-            Edit Profile
-          </button>
+          <div className="flex items-center gap-2 justify-center mt-4">
+            <button onClick={startEdit} className="btn-secondary flex items-center gap-1.5 text-xs">
+              <Pencil className="w-3.5 h-3.5" />
+              Edit Profile
+            </button>
+            <button onClick={() => navigate("/share-business")} className="btn-secondary flex items-center gap-1.5 text-xs">
+              <Share2 className="w-3.5 h-3.5" />
+              Share Business Details
+            </button>
+          </div>
         )}
       </motion.div>
 
