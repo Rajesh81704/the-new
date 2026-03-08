@@ -32,6 +32,7 @@ const initialMembers: Member[] = [
 const emptyMember = { id: "", name: "", role: "", company: "", category: "", email: "", city: "", status: "active" as const };
 
 const AdminMembers = () => {
+  const navigate = useNavigate();
   const [members, setMembers] = useState<Member[]>(initialMembers);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
