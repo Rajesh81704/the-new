@@ -85,6 +85,7 @@ const App = () => (
             </Routes>
           </BrowserRouter>
         </PostsProvider>
+        </BusinessCardProvider>
       </ProfileProvider>
     </TooltipProvider>
   </QueryClientProvider>
