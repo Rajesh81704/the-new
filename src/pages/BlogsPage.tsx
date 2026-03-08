@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Search, Clock, Eye, Heart, MessageCircle, Bookmark, Share2, ChevronRight, TrendingUp } from "lucide-react";
+import { Search, Clock, Eye, Heart, Bookmark, TrendingUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,7 +34,12 @@ const blogs: Blog[] = [
   { title: "Why Community-Led Growth is the Future", author: "Laura Reyes", authorInitials: "LR", date: "Feb 12, 2026", excerpt: "Leveraging your community as a growth engine — strategies from brands that grew 10x through community.", tag: "Networking", readTime: "6 min", views: 1120, likes: 89, comments: 17, coverGradient: "from-primary/10 to-accent/10" },
 ];
 
+function slugify(title: string) {
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
 const BlogsPage = () => {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [selectedTag, setSelectedTag] = useState("all");
   const [likedBlogs, setLikedBlogs] = useState<string[]>([]);
@@ -79,6 +85,7 @@ const BlogsPage = () => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.08 }}
+                onClick={() => navigate(`/blogs/${slugify(b.title)}`)}
                 className={`shrink-0 w-72 bg-gradient-to-br ${b.coverGradient} rounded-2xl border border-border p-5 cursor-pointer hover:shadow-md transition-all group`}
               >
                 <Badge className="text-[9px] font-normal mb-3">{b.tag}</Badge>
@@ -143,6 +150,7 @@ const BlogsPage = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.04 }}
+                onClick={() => navigate(`/blogs/${slugify(b.title)}`)}
                 className="bg-card rounded-2xl border border-border overflow-hidden hover:shadow-sm transition-shadow cursor-pointer group"
               >
                 {/* Content */}
@@ -184,27 +192,14 @@ const BlogsPage = () => {
                       <Heart className={`w-3.5 h-3.5 ${isLiked ? "fill-destructive" : ""}`} />
                       {b.likes + (isLiked ? 1 : 0)}
                     </Button>
-                    <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1 text-muted-foreground">
-                      <MessageCircle className="w-3.5 h-3.5" />{b.comments}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={`ml-auto h-7 w-7 ${isSaved ? "text-primary" : "text-muted-foreground"}`}
+                      onClick={(e) => { e.stopPropagation(); toggleSave(b.title); }}
+                    >
+                      <Bookmark className={`w-3.5 h-3.5 ${isSaved ? "fill-primary" : ""}`} />
                     </Button>
-                    <div className="ml-auto flex items-center gap-0.5">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className={`h-7 w-7 ${isSaved ? "text-primary" : "text-muted-foreground"}`}
-                        onClick={(e) => { e.stopPropagation(); toggleSave(b.title); }}
-                      >
-                        <Bookmark className={`w-3.5 h-3.5 ${isSaved ? "fill-primary" : ""}`} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-muted-foreground"
-                        onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(window.location.href); toast.success("Link copied!"); }}
-                      >
-                        <Share2 className="w-3.5 h-3.5" />
-                      </Button>
-                    </div>
                   </div>
                 </div>
               </motion.article>

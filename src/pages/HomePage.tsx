@@ -1,7 +1,7 @@
 import { FeedCard } from "@/components/FeedCard";
 import { CreatePost } from "@/components/CreatePost";
 import { usePosts } from "@/lib/postsContext";
-import { Heart, Share2 } from "lucide-react";
+import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import feedFunding from "@/assets/feed-funding.jpg";
 import feedPodcast from "@/assets/feed-podcast.jpg";
@@ -113,9 +113,6 @@ const UserPostCard = ({ post, index }: { post: { content: string; image?: string
         >
           <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
           <span className="text-xs">{likeCount}</span>
-        </button>
-        <button className="btn-ghost flex items-center gap-1.5 ml-auto">
-          <Share2 className="w-4 h-4" />
         </button>
       </div>
     </motion.div>

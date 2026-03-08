@@ -20,6 +20,7 @@ import MyFeedPage from "./pages/MyFeedPage";
 import MyProfilePage from "./pages/MyProfilePage";
 import ResourcesPage from "./pages/ResourcesPage";
 import BlogsPage from "./pages/BlogsPage";
+import BlogDetailPage from "./pages/BlogDetailPage";
 import ShareBusinessPage from "./pages/ShareBusinessPage";
 import PublicCardPage from "./pages/PublicCardPage";
 import NotFound from "./pages/NotFound";
@@ -65,6 +66,7 @@ const App = () => (
                 <Route path="/my-profile" element={<MyProfilePage />} />
                 <Route path="/resources" element={<ResourcesPage />} />
                 <Route path="/blogs" element={<BlogsPage />} />
+                <Route path="/blogs/:slug" element={<BlogDetailPage />} />
                 <Route path="/share-business" element={<ShareBusinessPage />} />
               </Route>
               <Route element={<AdminLayout />}>

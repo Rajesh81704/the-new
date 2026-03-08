@@ -1,5 +1,5 @@
 import { usePosts } from "@/lib/postsContext";
-import { Heart, Share2 } from "lucide-react";
+import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -101,9 +101,6 @@ const MyPostCard = ({ post, youtubeId, index }: { post: { content: string; image
         >
           <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
           <span className="text-xs">{likeCount}</span>
-        </button>
-        <button className="btn-ghost flex items-center gap-1.5 ml-auto">
-          <Share2 className="w-4 h-4" />
         </button>
       </div>
     </motion.div>

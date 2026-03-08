@@ -1,4 +1,4 @@
-import { Heart, Share2, Star } from "lucide-react";
+import { Heart, Star } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { avatars } from "@/lib/avatars";
@@ -94,9 +94,6 @@ export const FeedCard = ({ avatar, name, role, content, image, likes, tag, index
         >
           <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
           <span className="text-xs">{likeCount}</span>
-        </button>
-        <button className="btn-ghost flex items-center gap-1.5">
-          <Share2 className="w-4 h-4" />
         </button>
         <button
           onClick={handleInterested}
