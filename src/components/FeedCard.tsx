@@ -52,13 +52,7 @@ export const FeedCard = ({ avatar, name, role, content, image, likes, comments, 
 
       {image && (
         <div className="rounded-xl overflow-hidden mb-3 bg-muted aspect-video">
-          {typeof image === "string" && image.startsWith("/") || image.includes("assets") ? (
-            <img src={image} alt="Post media" className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <span className="text-xs text-muted-foreground">{image}</span>
-            </div>
-          )}
+          <img src={image} alt="Post media" className="w-full h-full object-cover" />
         </div>
       )}
 
