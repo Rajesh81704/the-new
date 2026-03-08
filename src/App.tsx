@@ -91,6 +91,7 @@ const App = () => (
             </Routes>
           </BrowserRouter>
         </PostsProvider>
+        </ApplicationsProvider>
         </BusinessCardProvider>
       </ProfileProvider>
     </TooltipProvider>
