@@ -43,6 +43,7 @@ const MembersPage = () => {
   const activeFilters = (selectedCity !== "all" ? 1 : 0) + (selectedCategory !== "all" ? 1 : 0);
 
   return (
+    <div className="min-h-screen bg-section-blue/40">
     <div className="max-w-lg mx-auto px-4 py-4 space-y-4 pb-24">
       <div className="flex items-center justify-between">
         <div>

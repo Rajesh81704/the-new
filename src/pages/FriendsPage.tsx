@@ -88,6 +88,7 @@ const FriendsPage = () => {
   };
 
   return (
+    <div className="min-h-screen bg-section-violet/40">
     <div className="max-w-lg mx-auto px-4 py-4 space-y-4 pb-24">
       {/* Header */}
       <div>
