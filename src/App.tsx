@@ -51,6 +51,15 @@ const App = () => (
                 <Route path="/resources" element={<ResourcesPage />} />
                 <Route path="/blogs" element={<BlogsPage />} />
               </Route>
+              <Route element={<AdminLayout />}>
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/members" element={<AdminMembers />} />
+                <Route path="/admin/events" element={<AdminEvents />} />
+                <Route path="/admin/podcasts" element={<AdminPodcasts />} />
+                <Route path="/admin/blogs" element={<AdminBlogs />} />
+                <Route path="/admin/resources" element={<AdminResources />} />
+                <Route path="/admin/terms" element={<AdminTerms />} />
+              </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
