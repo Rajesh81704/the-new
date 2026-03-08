@@ -52,6 +52,7 @@ const initialCompanies: Company[] = [
 ];
 
 export default function SuperAdminCompanies() {
+  const navigate = useNavigate();
   const [companies, setCompanies] = useState<Company[]>(initialCompanies);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
