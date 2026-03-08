@@ -8,6 +8,7 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { PostsProvider } from "@/lib/postsContext";
 import { ProfileProvider } from "@/lib/profileContext";
 import { BusinessCardProvider } from "@/lib/businessCardContext";
+import { ApplicationsProvider } from "@/lib/applicationsContext";
 import HomePage from "./pages/HomePage";
 import FriendsPage from "./pages/FriendsPage";
 import EventsPage from "./pages/EventsPage";
