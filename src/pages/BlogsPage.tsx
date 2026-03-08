@@ -85,6 +85,7 @@ const BlogsPage = () => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.08 }}
+                onClick={() => navigate(`/blogs/${slugify(b.title)}`)}
                 className={`shrink-0 w-72 bg-gradient-to-br ${b.coverGradient} rounded-2xl border border-border p-5 cursor-pointer hover:shadow-md transition-all group`}
               >
                 <Badge className="text-[9px] font-normal mb-3">{b.tag}</Badge>
