@@ -13,13 +13,7 @@ interface Blog {
   id: string; title: string; excerpt: string; content: string; author: string; tag: string; published_at: string; is_published: boolean;
 }
 
-const initialBlogs: Blog[] = [
-  { id: "1", title: "5 Lessons from Scaling a Startup", excerpt: "Key takeaways from growing a team from 3 to 50.", content: "Full blog content here...", author: "Sarah Lawson", tag: "Growth", published_at: "2026-03-05", is_published: true },
-  { id: "2", title: "The Future of Remote Networking", excerpt: "How virtual events are reshaping connections.", content: "Full blog content here...", author: "Michael Chen", tag: "Networking", published_at: "2026-03-02", is_published: true },
-  { id: "3", title: "Building a Personal Brand Online", excerpt: "Actionable strategies to stand out.", content: "Full blog content here...", author: "Elena Rodriguez", tag: "Branding", published_at: "2026-02-28", is_published: true },
-  { id: "4", title: "Fundraising Mistakes to Avoid", excerpt: "Common pitfalls when raising capital.", content: "Full blog content here...", author: "David Park", tag: "Funding", published_at: "2026-02-24", is_published: false },
-  { id: "5", title: "Design Thinking for Entrepreneurs", excerpt: "How design principles can transform strategy.", content: "Full blog content here...", author: "Alex Johnson", tag: "Design", published_at: "2026-02-20", is_published: true },
-];
+const initialBlogs: Blog[] = [];
 
 const emptyBlog: Omit<Blog, "id"> = { title: "", excerpt: "", content: "", author: "", tag: "", published_at: "", is_published: false };
 

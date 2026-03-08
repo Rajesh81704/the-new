@@ -48,12 +48,7 @@ interface Company {
   createdAt: string;
 }
 
-const initialCompanies: Company[] = [
-  { id: "1", name: "TechNet India", maxMembers: 1000, modules: ["members", "events", "podcasts", "blogs", "resources", "friends", "feed", "messaging", "analytics", "settings", "membership"], amount: 50000, billingCycle: "monthly", status: "active", currentMembers: 500, domain: "technet.in", createdAt: "Jan 2025" },
-  { id: "2", name: "StartupHub", maxMembers: 250, modules: ["members", "events", "blogs", "feed", "friends", "settings"], amount: 25000, billingCycle: "quarterly", status: "active", currentMembers: 120, domain: "startuphub.co", createdAt: "Mar 2025" },
-  { id: "3", name: "BizConnect", maxMembers: 50, modules: ["members", "events", "feed", "settings"], amount: 8000, billingCycle: "monthly", status: "active", currentMembers: 45, domain: "bizconnect.io", createdAt: "Jun 2025" },
-  { id: "4", name: "NetVentures", maxMembers: 250, modules: ["members", "events", "podcasts", "blogs", "resources", "feed", "settings"], amount: 30000, billingCycle: "yearly", status: "active", currentMembers: 89, domain: "netventures.com", createdAt: "Aug 2025" },
-];
+const initialCompanies: Company[] = [];
 
 const planFromModules = (count: number) => {
   if (count >= 9) return { name: "Enterprise", color: "bg-primary/10 text-primary border-primary/20" };

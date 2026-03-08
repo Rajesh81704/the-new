@@ -20,14 +20,7 @@ interface Member {
   status: "active" | "inactive";
 }
 
-const initialMembers: Member[] = [
-  { id: "1", name: "Sarah Lawson", role: "UI/UX Designer", company: "DesignCo", category: "Design", email: "sarah@designco.com", city: "San Francisco", status: "active" },
-  { id: "2", name: "Michael Chen", role: "Startup Founder", company: "TechVentures", category: "Technology", email: "michael@techventures.io", city: "New York", status: "active" },
-  { id: "3", name: "Elena Rodriguez", role: "Marketing Director", company: "GrowthLab", category: "Marketing", email: "elena@growthlab.com", city: "Austin", status: "active" },
-  { id: "4", name: "David Park", role: "Software Engineer", company: "CodeWorks", category: "Engineering", email: "david@codeworks.dev", city: "Seattle", status: "inactive" },
-  { id: "5", name: "Jessica Kim", role: "Product Manager", company: "Innovate Inc", category: "Product", email: "jessica@innovate.com", city: "Los Angeles", status: "active" },
-  { id: "6", name: "Ryan Davis", role: "Investor", company: "Capital Group", category: "Finance", email: "ryan@capitalgroup.com", city: "Chicago", status: "active" },
-];
+const initialMembers: Member[] = [];
 
 const emptyMember = { id: "", name: "", role: "", company: "", category: "", email: "", city: "", status: "active" as const };
 

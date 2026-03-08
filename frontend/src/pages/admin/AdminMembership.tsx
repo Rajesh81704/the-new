@@ -26,11 +26,7 @@ interface MembershipPlan {
 
 const ICONS = { crown: Crown, star: Star, zap: Zap };
 
-const initialPlans: MembershipPlan[] = [
-  { id: "1", name: "Basic", price: 499, duration: "monthly", features: ["Access to events", "Basic networking", "Community feed"], maxMembers: 100, isActive: true, subscriberCount: 45, icon: "zap" },
-  { id: "2", name: "Professional", price: 1499, duration: "monthly", features: ["All Basic features", "Podcast access", "Resource library", "Priority support"], maxMembers: 500, isActive: true, subscriberCount: 120, icon: "star" },
-  { id: "3", name: "Enterprise", price: 4999, duration: "monthly", features: ["All Pro features", "Custom branding", "API access", "Dedicated manager", "Analytics dashboard"], maxMembers: -1, isActive: true, subscriberCount: 8, icon: "crown" },
-];
+const initialPlans: MembershipPlan[] = [];
 
 const DURATIONS = [
   { value: "monthly", label: "Monthly" },

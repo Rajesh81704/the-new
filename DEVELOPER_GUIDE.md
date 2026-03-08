@@ -11,6 +11,61 @@ connectpro/
 └── package.json    # Root package.json with helper scripts
 ```
 
+## Application Workflow
+
+```mermaid
+graph TD
+    %% Roles
+    User([Platform Member])
+    Admin([Company Admin])
+    SuperAdmin([Super Admin])
+
+    %% Platforms
+    subyard React Frontend SPA
+        UI[User Interface / Pages]
+        AuthForm[Auth Forms]
+        AdminPanel[Company Dashboard]
+        SuperAdminPanel[Super Admin Dashboard]
+    end
+
+    %% Backend Monolith
+    subgraph Node.js + Express Backend
+        API[Express Router]
+        AuthService[Auth Service]
+        PostService[Feed Service]
+        AdminService[Admin Service]
+        BillingService[Stripe / Billing Service]
+        
+        API --> AuthService
+        API --> PostService
+        API --> AdminService
+        API --> BillingService
+    end
+
+    %% Database
+    DB[(PostgreSQL via Prisma)]
+
+    %% Communication Flow
+    User -->|Views Feed, Posts, Interacts| UI
+    User -->|Logs In| AuthForm
+    Admin -->|Manages Events, Blogs| AdminPanel
+    SuperAdmin -->|Manages Companies, Subscriptions| SuperAdminPanel
+
+    UI -->|REST JSON| API
+    AuthForm -->|REST JSON| API
+    AdminPanel -->|REST JSON| API
+    SuperAdminPanel -->|REST JSON| API
+
+    AuthService <-->|Creates/Gets User| DB
+    PostService <-->|Reads/Writes Posts| DB
+    AdminService <-->|Reads/Writes Events, Blogs| DB
+    BillingService <-->|Updates Subscription Status| DB
+    
+    %% External Integrations
+    Stripe([Stripe API])
+    BillingService <-->|Creates Subscription| Stripe
+```
+
 ## Current Project Status
 
 **IMPORTANT:** The full Full-Stack integration is **NOT** yet complete. Here is the exact status:

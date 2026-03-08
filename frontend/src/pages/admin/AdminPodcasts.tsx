@@ -13,12 +13,7 @@ interface Podcast {
   id: string; title: string; guest: string; description: string; duration: string; audio_url: string; published_at: string;
 }
 
-const initialPodcasts: Podcast[] = [
-  { id: "1", title: "Building in Public", guest: "Sarah Lawson", description: "How transparency builds trust and community around your product.", duration: "42 min", audio_url: "", published_at: "2026-03-01" },
-  { id: "2", title: "Scaling Your Startup", guest: "Michael Chen", description: "From zero to 10k users — growth strategies that actually work.", duration: "38 min", audio_url: "", published_at: "2026-02-22" },
-  { id: "3", title: "Design Thinking 101", guest: "Elena Rodriguez", description: "Applying design thinking to solve complex business problems.", duration: "45 min", audio_url: "", published_at: "2026-02-15" },
-  { id: "4", title: "The Future of AI", guest: "David Park", description: "How AI is transforming industries and creating new opportunities.", duration: "50 min", audio_url: "", published_at: "2026-02-08" },
-];
+const initialPodcasts: Podcast[] = [];
 
 const emptyPodcast: Omit<Podcast, "id"> = { title: "", guest: "", description: "", duration: "", audio_url: "", published_at: "" };
 

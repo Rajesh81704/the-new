@@ -27,28 +27,28 @@ export interface MyProfile {
 }
 
 const defaultProfile: MyProfile = {
-  name: "Alex Johnson",
-  role: "Product Designer",
-  company: "Freelance",
+  name: "",
+  role: "",
+  company: "",
   business: {
-    category: "Design / Product",
-    phone: "+1 (555) 123-4567",
-    email: "alex@alexjohnson.design",
-    website: "https://alexjohnson.design",
-    address: "123 Creative Ave, San Francisco, CA 94102",
-    description: "Independent product designer specializing in mobile-first experiences for startups. Focused on creating intuitive interfaces that drive user engagement and business growth.",
+    category: "",
+    phone: "",
+    email: "",
+    website: "",
+    address: "",
+    description: "",
   },
   personal: {
-    city: "San Francisco, CA",
-    phone: "+1 (555) 123-4568",
-    email: "alex.johnson@gmail.com",
-    dob: "May 20, 1992",
+    city: "",
+    phone: "",
+    email: "",
+    dob: "",
   },
   social: {
-    linkedin: "https://linkedin.com/in/alexjohnson",
-    twitter: "https://twitter.com/alexjdesign",
-    instagram: "https://instagram.com/alexjdesign",
-    whatsapp: "https://wa.me/15551234568",
+    linkedin: "",
+    twitter: "",
+    instagram: "",
+    whatsapp: "",
   },
 };
 

@@ -17,12 +17,7 @@ interface Resource {
 const typeIcons = { PDF: FileText, Video: Video, Document: Upload, Link: Link2 };
 const typeColors = { PDF: "text-red-500 bg-red-500/10", Video: "text-purple-500 bg-purple-500/10", Document: "text-blue-500 bg-blue-500/10", Link: "text-emerald-500 bg-emerald-500/10" };
 
-const initialResources: Resource[] = [
-  { id: "1", title: "Startup Funding Guide 2026", description: "Complete guide to raising your first round.", type: "PDF", file_url: "", created_at: "2026-03-01" },
-  { id: "2", title: "Networking Masterclass", description: "Learn how to build meaningful connections.", type: "Video", file_url: "", created_at: "2026-02-25" },
-  { id: "3", title: "Business Plan Template", description: "Ready-to-use template for startups.", type: "Document", file_url: "", created_at: "2026-02-20" },
-  { id: "4", title: "Marketing Strategy Toolkit", description: "Comprehensive strategies for small businesses.", type: "Link", file_url: "https://drive.google.com/example", created_at: "2026-02-15" },
-];
+const initialResources: Resource[] = [];
 
 const emptyResource: Omit<Resource, "id"> = { title: "", description: "", type: "PDF", file_url: "", created_at: "" };
 

@@ -13,12 +13,7 @@ interface Event {
   id: string; title: string; date: string; time: string; location: string; category: string; description: string; image_url: string;
 }
 
-const initialEvents: Event[] = [
-  { id: "1", title: "Tech Summit 2026", date: "2026-04-15", time: "09:00 AM", location: "San Francisco Convention Center", category: "Conference", description: "Annual tech summit bringing together industry leaders.", image_url: "" },
-  { id: "2", title: "Startup Pitch Night", date: "2026-03-22", time: "06:30 PM", location: "Innovation Hub, NYC", category: "Networking", description: "Pitch your startup to a panel of investors.", image_url: "" },
-  { id: "3", title: "Women in Tech Meetup", date: "2026-04-05", time: "05:00 PM", location: "The Loft, Austin", category: "Meetup", description: "Monthly meetup for women in technology.", image_url: "" },
-  { id: "4", title: "Design Bootcamp", date: "2026-05-10", time: "10:00 AM", location: "Creative Space, LA", category: "Workshop", description: "Intensive 2-day UX/UI design bootcamp.", image_url: "" },
-];
+const initialEvents: Event[] = [];
 
 const emptyEvent: Omit<Event, "id"> = { title: "", date: "", time: "", location: "", category: "", description: "", image_url: "" };
 
