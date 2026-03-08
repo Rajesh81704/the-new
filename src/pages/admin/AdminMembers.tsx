@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus, Search, Edit2, Trash2, MoreHorizontal } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Plus, Search, Edit2, Trash2, MoreHorizontal, LogIn } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,7 @@ const initialMembers: Member[] = [
 const emptyMember = { id: "", name: "", role: "", company: "", category: "", email: "", city: "", status: "active" as const };
 
 const AdminMembers = () => {
+  const navigate = useNavigate();
   const [members, setMembers] = useState<Member[]>(initialMembers);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -117,6 +119,9 @@ const AdminMembers = () => {
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => navigate("/")}>
+                            <LogIn className="w-3.5 h-3.5 mr-2" /> Enter as User
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => openEdit(m)}>
                             <Edit2 className="w-3.5 h-3.5 mr-2" /> Edit
                           </DropdownMenuItem>

@@ -8,6 +8,7 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { PostsProvider } from "@/lib/postsContext";
 import { ProfileProvider } from "@/lib/profileContext";
 import { BusinessCardProvider } from "@/lib/businessCardContext";
+import { ApplicationsProvider } from "@/lib/applicationsContext";
 import HomePage from "./pages/HomePage";
 import FriendsPage from "./pages/FriendsPage";
 import EventsPage from "./pages/EventsPage";
@@ -36,6 +37,8 @@ import SuperAdminDashboard from "./pages/super-admin/SuperAdminDashboard";
 import SuperAdminCompanies from "./pages/super-admin/SuperAdminCompanies";
 import SuperAdminBilling from "./pages/super-admin/SuperAdminBilling";
 import SuperAdminSettings from "./pages/super-admin/SuperAdminSettings";
+import SuperAdminApplications from "./pages/super-admin/SuperAdminApplications";
+import CompanyLandingPage from "./pages/CompanyLandingPage";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +47,7 @@ const App = () => (
     <TooltipProvider>
       <ProfileProvider>
         <BusinessCardProvider>
+        <ApplicationsProvider>
         <PostsProvider>
           <Toaster />
           <Sonner />
@@ -79,12 +83,15 @@ const App = () => (
                 <Route path="/super-admin/companies" element={<SuperAdminCompanies />} />
                 <Route path="/super-admin/billing" element={<SuperAdminBilling />} />
                 <Route path="/super-admin/settings" element={<SuperAdminSettings />} />
+                <Route path="/super-admin/applications" element={<SuperAdminApplications />} />
               </Route>
               <Route path="/card/:id" element={<PublicCardPage />} />
+              <Route path="/get-started" element={<CompanyLandingPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </PostsProvider>
+        </ApplicationsProvider>
         </BusinessCardProvider>
       </ProfileProvider>
     </TooltipProvider>

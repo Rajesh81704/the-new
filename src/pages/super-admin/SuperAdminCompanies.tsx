@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, MoreVertical, Building2, Search } from "lucide-react";
+import { Plus, MoreVertical, Building2, Search, LogIn } from "lucide-react";
 import { toast } from "sonner";
 
 const ALL_MODULES = [
@@ -51,6 +52,7 @@ const initialCompanies: Company[] = [
 ];
 
 export default function SuperAdminCompanies() {
+  const navigate = useNavigate();
   const [companies, setCompanies] = useState<Company[]>(initialCompanies);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -209,6 +211,9 @@ export default function SuperAdminCompanies() {
                     <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => navigate("/admin")}>
+                      <LogIn className="w-3.5 h-3.5 mr-2" /> Enter Admin Panel
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => openEdit(c)}>Edit</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => toggleStatus(c.id)}>{c.status === "active" ? "Suspend" : "Activate"}</DropdownMenuItem>
                     <DropdownMenuItem className="text-destructive" onClick={() => deleteCompany(c.id)}>Delete</DropdownMenuItem>

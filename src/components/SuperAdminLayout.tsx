@@ -4,11 +4,12 @@ import {
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, useSidebar,
 } from "@/components/ui/sidebar";
 import { NavLink } from "@/components/NavLink";
-import { LayoutDashboard, Building2, CreditCard, Settings, ArrowLeft, Crown } from "lucide-react";
+import { LayoutDashboard, Building2, CreditCard, Settings, ArrowLeft, Crown, ClipboardList } from "lucide-react";
 
 const superAdminItems = [
   { title: "Dashboard", url: "/super-admin", icon: LayoutDashboard },
   { title: "Companies", url: "/super-admin/companies", icon: Building2 },
+  { title: "Applications", url: "/super-admin/applications", icon: ClipboardList },
   { title: "Billing Plans", url: "/super-admin/billing", icon: CreditCard },
   { title: "Settings", url: "/super-admin/settings", icon: Settings },
 ];
