@@ -1,37 +1,78 @@
 import { EventCard } from "@/components/EventCard";
+import eventPitch from "@/assets/event-pitch.jpg";
+import eventSummit from "@/assets/event-summit.jpg";
+import eventMixer from "@/assets/event-women-tech.jpg";
+import eventBootcamp from "@/assets/event-bootcamp.jpg";
 
 const events = [
   {
     title: "Startup Pitch Night",
     date: "Mar 15, 2026",
-    time: "6:00 PM",
+    time: "6:00 PM – 9:00 PM",
     location: "Innovation Hub, San Francisco",
     attendees: 84,
-    color: "bg-primary/10",
+    image: eventPitch,
+    description: "Join us for an evening of exciting startup pitches from early-stage founders. Network with investors, mentors, and fellow entrepreneurs over food and drinks.",
+    organizer: {
+      initials: "RD",
+      name: "Ryan Davis",
+      role: "Venture Partner at Horizon Ventures",
+      isFriend: false,
+      phone: "+1 (650) 555-0401",
+    },
   },
   {
     title: "Design Leadership Summit",
     date: "Mar 22, 2026",
-    time: "9:00 AM",
+    time: "9:00 AM – 5:00 PM",
     location: "The Grand Hall, New York",
     attendees: 210,
-    color: "bg-accent/10",
+    image: eventSummit,
+    platform: "Zoom",
+    description: "A full-day summit featuring panels on inclusive design, design systems at scale, and leadership in creative teams. Hybrid event with virtual access.",
+    organizer: {
+      initials: "JP",
+      name: "Jessica Park",
+      role: "UX Designer at Craft Studio",
+      isFriend: true,
+      phone: "+1 (310) 555-0302",
+      whatsapp: "https://wa.me/13105550302",
+    },
   },
   {
-    title: "Women in Tech Mixer",
+    title: "Tech Networking Mixer",
     date: "Apr 3, 2026",
-    time: "5:30 PM",
+    time: "5:30 PM – 8:30 PM",
     location: "Skyline Lounge, Austin",
     attendees: 65,
-    color: "bg-secondary",
+    image: eventMixer,
+    description: "An intimate networking mixer for professionals in tech. Casual atmosphere with curated introductions and a keynote on building diverse teams.",
+    organizer: {
+      initials: "AK",
+      name: "Amara Kim",
+      role: "Product Manager at BuildFlow",
+      isFriend: true,
+      phone: "+1 (206) 555-0502",
+      whatsapp: "https://wa.me/12065550502",
+    },
   },
   {
     title: "Product Management Bootcamp",
     date: "Apr 10, 2026",
-    time: "10:00 AM",
+    time: "10:00 AM – 4:00 PM",
     location: "Virtual Event",
     attendees: 340,
-    color: "bg-primary/5",
+    image: eventBootcamp,
+    platform: "Google Meet",
+    description: "Intensive one-day bootcamp covering product strategy, roadmap planning, user research, and stakeholder management. Perfect for aspiring and new PMs.",
+    organizer: {
+      initials: "SL",
+      name: "Sarah Lawson",
+      role: "CEO at Nexora Labs",
+      isFriend: true,
+      phone: "+1 (415) 555-0102",
+      whatsapp: "https://wa.me/14155550102",
+    },
   },
 ];
 

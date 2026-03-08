@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { avatars } from "@/lib/avatars";
 
 interface PersonCardProps {
@@ -14,13 +15,15 @@ interface PersonCardProps {
 export const PersonCard = ({ initials, name, role, company, connected = false, index }: PersonCardProps) => {
   const [isConnected, setIsConnected] = useState(connected);
   const avatarSrc = avatars[initials];
+  const navigate = useNavigate();
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.06, duration: 0.3 }}
-      className="card-interactive p-4 flex items-center gap-3"
+      className="card-interactive p-4 flex items-center gap-3 cursor-pointer"
+      onClick={() => navigate(`/profile/${initials}`)}
     >
       <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-heading font-bold text-sm shrink-0 overflow-hidden">
         {avatarSrc ? (
@@ -35,7 +38,10 @@ export const PersonCard = ({ initials, name, role, company, connected = false, i
         {company && <p className="text-xs text-muted-foreground/70 truncate">{company}</p>}
       </div>
       <button
-        onClick={() => setIsConnected(!isConnected)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsConnected(!isConnected);
+        }}
         className={`shrink-0 rounded-xl px-3.5 py-2 text-xs font-medium transition-all duration-150 active:scale-95 ${
           isConnected
             ? "bg-secondary text-secondary-foreground border border-border"
