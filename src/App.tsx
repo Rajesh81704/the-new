@@ -83,6 +83,7 @@ const App = () => (
                 <Route path="/super-admin/companies" element={<SuperAdminCompanies />} />
                 <Route path="/super-admin/billing" element={<SuperAdminBilling />} />
                 <Route path="/super-admin/settings" element={<SuperAdminSettings />} />
+                <Route path="/super-admin/applications" element={<SuperAdminApplications />} />
               </Route>
               <Route path="/card/:id" element={<PublicCardPage />} />
               <Route path="*" element={<NotFound />} />
