@@ -1,0 +1,70 @@
+import { Heart, MessageCircle, Share2 } from "lucide-react";
+import { useState } from "react";
+import { motion } from "framer-motion";
+
+interface FeedCardProps {
+  avatar: string;
+  name: string;
+  role: string;
+  content: string;
+  image?: string;
+  likes: number;
+  comments: number;
+  tag?: string;
+  index: number;
+}
+
+export const FeedCard = ({ avatar, name, role, content, image, likes, comments, tag, index }: FeedCardProps) => {
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(likes);
+
+  const handleLike = () => {
+    setLiked(!liked);
+    setLikeCount(liked ? likeCount - 1 : likeCount + 1);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.08, duration: 0.35 }}
+      className="card-interactive p-4"
+    >
+      <div className="flex items-start gap-3 mb-3">
+        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-heading font-bold text-sm shrink-0 overflow-hidden">
+          {avatar}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-heading font-semibold text-sm text-foreground">{name}</p>
+          <p className="text-xs text-muted-foreground">{role}</p>
+        </div>
+        {tag && <span className="chip">{tag}</span>}
+      </div>
+
+      <p className="text-sm text-foreground/85 leading-relaxed mb-3">{content}</p>
+
+      {image && (
+        <div className="rounded-xl overflow-hidden mb-3 bg-muted aspect-video flex items-center justify-center">
+          <span className="text-xs text-muted-foreground">{image}</span>
+        </div>
+      )}
+
+      <div className="flex items-center gap-1 pt-2 border-t border-border">
+        <button
+          onClick={handleLike}
+          className={`btn-ghost flex items-center gap-1.5 ${liked ? "text-destructive" : ""}`}
+        >
+          <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
+          <span className="text-xs">{likeCount}</span>
+        </button>
+        <button className="btn-ghost flex items-center gap-1.5">
+          <MessageCircle className="w-4 h-4" />
+          <span className="text-xs">{comments}</span>
+        </button>
+        <button className="btn-ghost flex items-center gap-1.5 ml-auto">
+          <Share2 className="w-4 h-4" />
+        </button>
+      </div>
+    </motion.div>
+  );
+};
