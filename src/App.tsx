@@ -47,6 +47,7 @@ const App = () => (
     <TooltipProvider>
       <ProfileProvider>
         <BusinessCardProvider>
+        <ApplicationsProvider>
         <PostsProvider>
           <Toaster />
           <Sonner />
