@@ -192,27 +192,14 @@ const BlogsPage = () => {
                       <Heart className={`w-3.5 h-3.5 ${isLiked ? "fill-destructive" : ""}`} />
                       {b.likes + (isLiked ? 1 : 0)}
                     </Button>
-                    <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1 text-muted-foreground">
-                      <MessageCircle className="w-3.5 h-3.5" />{b.comments}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={`ml-auto h-7 w-7 ${isSaved ? "text-primary" : "text-muted-foreground"}`}
+                      onClick={(e) => { e.stopPropagation(); toggleSave(b.title); }}
+                    >
+                      <Bookmark className={`w-3.5 h-3.5 ${isSaved ? "fill-primary" : ""}`} />
                     </Button>
-                    <div className="ml-auto flex items-center gap-0.5">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className={`h-7 w-7 ${isSaved ? "text-primary" : "text-muted-foreground"}`}
-                        onClick={(e) => { e.stopPropagation(); toggleSave(b.title); }}
-                      >
-                        <Bookmark className={`w-3.5 h-3.5 ${isSaved ? "fill-primary" : ""}`} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-muted-foreground"
-                        onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(window.location.href); toast.success("Link copied!"); }}
-                      >
-                        <Share2 className="w-3.5 h-3.5" />
-                      </Button>
-                    </div>
                   </div>
                 </div>
               </motion.article>

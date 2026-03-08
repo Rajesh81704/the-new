@@ -114,9 +114,6 @@ const UserPostCard = ({ post, index }: { post: { content: string; image?: string
           <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
           <span className="text-xs">{likeCount}</span>
         </button>
-        <button className="btn-ghost flex items-center gap-1.5 ml-auto">
-          <Share2 className="w-4 h-4" />
-        </button>
       </div>
     </motion.div>
   );

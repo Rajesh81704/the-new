@@ -1,4 +1,4 @@
-import { Heart, Share2, Star } from "lucide-react";
+import { Heart, Star } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { avatars } from "@/lib/avatars";
