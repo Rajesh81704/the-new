@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Globe, CreditCard, CheckCircle2, AlertCircle, Copy, XCircle, ExternalLink, IndianRupee } from "lucide-react";
+import { Globe, CreditCard, CheckCircle2, AlertCircle, Copy, XCircle, ExternalLink, IndianRupee, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -115,6 +115,7 @@ export default function AdminSettings() {
         <TabsList className="mb-4">
           <TabsTrigger value="domains" className="gap-2"><Globe className="w-4 h-4" /> Domain Settings</TabsTrigger>
           <TabsTrigger value="payments" className="gap-2"><IndianRupee className="w-4 h-4" /> Payment Gateways</TabsTrigger>
+          <TabsTrigger value="invoices" className="gap-2"><FileText className="w-4 h-4" /> Invoices</TabsTrigger>
         </TabsList>
 
         <TabsContent value="domains" className="space-y-4">
@@ -231,6 +232,91 @@ export default function AdminSettings() {
               );
             })}
           </div>
+        </TabsContent>
+        <TabsContent value="invoices" className="space-y-4">
+          <Card className="shadow-sm border-0">
+            <CardHeader className="bg-gradient-to-r from-primary/10 to-transparent border-b border-border pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg font-heading flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-primary" /> Invoice Settings
+                  </CardTitle>
+                  <CardDescription className="mt-1">Configure the default invoice template and details for your users' monthly subscriptions</CardDescription>
+                </div>
+                <Button className="h-8 text-xs">Save Template</Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Company Name on Invoice</Label>
+                    <Input placeholder="e.g. Acme Corp" defaultValue="ConnectPro Inc." />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Company Address</Label>
+                    <textarea
+                      className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                      placeholder="Full company address..."
+                      defaultValue="123 Tech Park, \nSilicon Valley, CA 94025"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Tax ID / GST Number</Label>
+                    <Input placeholder="Optional..." defaultValue="GSTIN0000000000" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Company Logo URL</Label>
+                    <div className="flex gap-2">
+                      <Input placeholder="https://example.com/logo.png" />
+                      <Button variant="outline" size="icon"><ExternalLink className="w-4 h-4" /></Button>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Default Subscription Amount (₹)</Label>
+                    <Input type="number" placeholder="99.00" defaultValue="149" />
+                    <p className="text-[11px] text-muted-foreground">This standard amount will be shown on users' bills unless customized.</p>
+                  </div>
+                </div>
+
+                {/* Preview Box */}
+                <div className="bg-muted/30 border border-border rounded-xl p-5 relative overflow-hidden flex flex-col h-full">
+                  <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] uppercase font-bold px-3 py-1 rounded-bl-lg">Live Preview</div>
+                  <h4 className="font-semibold text-sm mb-4">Template Preview</h4>
+
+                  <div className="bg-card w-full flex-grow rounded-lg shadow-sm border border-border p-5 text-sm">
+                    <div className="flex justify-between items-start mb-6 pb-4 border-b border-border border-dashed">
+                      <div>
+                        <div className="w-10 h-10 bg-primary/20 rounded mb-2 flex items-center justify-center text-primary font-bold">Logo</div>
+                        <h5 className="font-bold">ConnectPro Inc.</h5>
+                        <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line">123 Tech Park,{"\n"}Silicon Valley, CA 94025</p>
+                      </div>
+                      <div className="text-right">
+                        <h4 className="text-xl font-heading font-medium text-primary uppercase tracking-tight">Invoice</h4>
+                        <p className="text-xs text-muted-foreground mt-1">#INV-202603-001</p>
+                      </div>
+                    </div>
+
+                    <div className="mb-6">
+                      <p className="text-xs text-muted-foreground mb-1">Billed To:</p>
+                      <h6 className="font-medium text-sm">[User Name Goes Here]</h6>
+                    </div>
+
+                    <div className="flex justify-between items-center py-2 border-b border-border">
+                      <span className="font-medium">Monthly Subscription</span>
+                      <span className="font-bold">₹149.00</span>
+                    </div>
+
+                    <div className="flex justify-between items-center py-2 mt-4">
+                      <span className="font-bold">Total Due</span>
+                      <span className="font-bold text-primary">₹149.00</span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
