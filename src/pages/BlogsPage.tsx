@@ -34,7 +34,12 @@ const blogs: Blog[] = [
   { title: "Why Community-Led Growth is the Future", author: "Laura Reyes", authorInitials: "LR", date: "Feb 12, 2026", excerpt: "Leveraging your community as a growth engine — strategies from brands that grew 10x through community.", tag: "Networking", readTime: "6 min", views: 1120, likes: 89, comments: 17, coverGradient: "from-primary/10 to-accent/10" },
 ];
 
+function slugify(title: string) {
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
 const BlogsPage = () => {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [selectedTag, setSelectedTag] = useState("all");
   const [likedBlogs, setLikedBlogs] = useState<string[]>([]);
