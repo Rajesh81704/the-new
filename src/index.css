@@ -36,6 +36,14 @@
 
     --radius: 0.75rem;
 
+    --section-teal: 168 50% 96%;
+    --section-amber: 35 60% 96%;
+    --section-blue: 215 50% 96%;
+    --section-rose: 350 50% 97%;
+    --section-violet: 270 40% 97%;
+    --section-emerald: 145 40% 96%;
+    --section-sky: 200 50% 96%;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
