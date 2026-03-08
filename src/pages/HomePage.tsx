@@ -148,6 +148,7 @@ const HomePage = () => {
         <FeedCard key={i} index={i + posts.length} {...item} />
       ))}
     </div>
+    </div>
   );
 };
 

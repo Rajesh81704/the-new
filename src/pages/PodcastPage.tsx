@@ -23,6 +23,7 @@ const PodcastPage = () => {
         ))}
       </div>
     </div>
+    </div>
   );
 };
 

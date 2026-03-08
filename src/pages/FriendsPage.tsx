@@ -292,6 +292,7 @@ const FriendsPage = () => {
         </TabsContent>
       </Tabs>
     </div>
+    </div>
   );
 };
 

@@ -209,6 +209,7 @@ const BlogsPage = () => {
         )}
       </div>
     </div>
+    </div>
   );
 };
 

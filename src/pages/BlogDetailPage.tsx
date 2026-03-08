@@ -183,6 +183,7 @@ const BlogDetailPage = () => {
         </div>
       </motion.article>
     </div>
+    </div>
   );
 };
 

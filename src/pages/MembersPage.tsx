@@ -130,6 +130,7 @@ const MembersPage = () => {
         )}
       </div>
     </div>
+    </div>
   );
 };
 
