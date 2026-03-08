@@ -20,6 +20,7 @@ import MyFeedPage from "./pages/MyFeedPage";
 import MyProfilePage from "./pages/MyProfilePage";
 import ResourcesPage from "./pages/ResourcesPage";
 import BlogsPage from "./pages/BlogsPage";
+import BlogDetailPage from "./pages/BlogDetailPage";
 import ShareBusinessPage from "./pages/ShareBusinessPage";
 import PublicCardPage from "./pages/PublicCardPage";
 import NotFound from "./pages/NotFound";
