@@ -8,7 +8,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes (to be added)
+// Routes
+import authRoutes from './routes/authRoutes';
+
+app.use('/api/auth', authRoutes);
+
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
 });
