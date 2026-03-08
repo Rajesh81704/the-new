@@ -95,9 +95,6 @@ export const FeedCard = ({ avatar, name, role, content, image, likes, tag, index
           <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
           <span className="text-xs">{likeCount}</span>
         </button>
-        <button className="btn-ghost flex items-center gap-1.5">
-          <Share2 className="w-4 h-4" />
-        </button>
         <button
           onClick={handleInterested}
           className={`ml-auto rounded-xl px-4 py-2 text-xs font-bold transition-all duration-150 active:scale-95 flex items-center gap-1.5 ${
