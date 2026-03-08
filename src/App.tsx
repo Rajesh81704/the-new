@@ -26,6 +26,13 @@ import AdminPodcasts from "./pages/admin/AdminPodcasts";
 import AdminBlogs from "./pages/admin/AdminBlogs";
 import AdminResources from "./pages/admin/AdminResources";
 import AdminTerms from "./pages/admin/AdminTerms";
+import AdminSettings from "./pages/admin/AdminSettings";
+import AdminMembership from "./pages/admin/AdminMembership";
+import { SuperAdminLayout } from "@/components/SuperAdminLayout";
+import SuperAdminDashboard from "./pages/super-admin/SuperAdminDashboard";
+import SuperAdminCompanies from "./pages/super-admin/SuperAdminCompanies";
+import SuperAdminBilling from "./pages/super-admin/SuperAdminBilling";
+import SuperAdminSettings from "./pages/super-admin/SuperAdminSettings";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +66,14 @@ const App = () => (
                 <Route path="/admin/blogs" element={<AdminBlogs />} />
                 <Route path="/admin/resources" element={<AdminResources />} />
                 <Route path="/admin/terms" element={<AdminTerms />} />
+                <Route path="/admin/settings" element={<AdminSettings />} />
+                <Route path="/admin/membership" element={<AdminMembership />} />
+              </Route>
+              <Route element={<SuperAdminLayout />}>
+                <Route path="/super-admin" element={<SuperAdminDashboard />} />
+                <Route path="/super-admin/companies" element={<SuperAdminCompanies />} />
+                <Route path="/super-admin/billing" element={<SuperAdminBilling />} />
+                <Route path="/super-admin/settings" element={<SuperAdminSettings />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
