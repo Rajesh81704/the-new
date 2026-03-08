@@ -87,23 +87,27 @@ export const FeedCard = ({ avatar, name, role, content, image, likes, tag, index
           </div>
         )}
 
-        <div className="flex items-center gap-1 pt-2 border-t border-border">
-          <button
-            onClick={handleLike}
-            className={`btn-ghost flex items-center gap-1.5 ${liked ? "text-destructive" : ""}`}
-          >
-            <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
-            <span className="text-xs">{likeCount}</span>
-          </button>
-          <button
-            onClick={handleInterested}
-            className={`btn-ghost flex items-center gap-1.5 ${interested ? "text-accent" : ""}`}
-          >
-            <Star className={`w-4 h-4 ${interested ? "fill-current" : ""}`} />
-            <span className="text-xs">{interested ? "Interested" : "Interested"}</span>
-          </button>
-          <button className="btn-ghost flex items-center gap-1.5 ml-auto">
-            <Share2 className="w-4 h-4" />
+      <div className="flex items-center gap-1 pt-2 border-t border-border">
+        <button
+          onClick={handleLike}
+          className={`btn-ghost flex items-center gap-1.5 ${liked ? "text-destructive" : ""}`}
+        >
+          <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
+          <span className="text-xs">{likeCount}</span>
+        </button>
+        <button className="btn-ghost flex items-center gap-1.5">
+          <Share2 className="w-4 h-4" />
+        </button>
+        <button
+          onClick={handleInterested}
+          className={`ml-auto rounded-xl px-4 py-2 text-xs font-bold transition-all duration-150 active:scale-95 flex items-center gap-1.5 ${
+            interested
+              ? "bg-accent/15 text-accent border border-accent/25"
+              : "bg-accent text-accent-foreground shadow-md"
+          }`}
+        >
+          <Star className={`w-3.5 h-3.5 ${interested ? "fill-current" : ""}`} />
+          {interested ? "Interested ✓" : "Interested"}
           </button>
         </div>
       </motion.div>
