@@ -211,6 +211,9 @@ export default function SuperAdminCompanies() {
                     <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => navigate("/admin")}>
+                      <LogIn className="w-3.5 h-3.5 mr-2" /> Enter Admin Panel
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => openEdit(c)}>Edit</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => toggleStatus(c.id)}>{c.status === "active" ? "Suspend" : "Activate"}</DropdownMenuItem>
                     <DropdownMenuItem className="text-destructive" onClick={() => deleteCompany(c.id)}>Delete</DropdownMenuItem>

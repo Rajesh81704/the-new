@@ -119,6 +119,9 @@ const AdminMembers = () => {
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => navigate("/")}>
+                            <LogIn className="w-3.5 h-3.5 mr-2" /> Enter as User
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => openEdit(m)}>
                             <Edit2 className="w-3.5 h-3.5 mr-2" /> Edit
                           </DropdownMenuItem>
