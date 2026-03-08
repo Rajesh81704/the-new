@@ -179,6 +179,7 @@ const ResourcesPage = () => {
         )}
       </div>
     </div>
+    </div>
   );
 };
 
