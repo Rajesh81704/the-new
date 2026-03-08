@@ -26,6 +26,8 @@ import {
   Shield,
 } from "lucide-react";
 
+import { CreditCard, Settings } from "lucide-react";
+
 const adminItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Members", url: "/admin/members", icon: Users },
@@ -34,6 +36,8 @@ const adminItems = [
   { title: "Blogs", url: "/admin/blogs", icon: PenLine },
   { title: "Resources", url: "/admin/resources", icon: BookOpen },
   { title: "Terms & Conditions", url: "/admin/terms", icon: FileText },
+  { title: "Membership", url: "/admin/membership", icon: CreditCard },
+  { title: "Settings", url: "/admin/settings", icon: Settings },
 ];
 
 function AdminSidebar() {
