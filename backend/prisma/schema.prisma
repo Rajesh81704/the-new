@@ -1,0 +1,147 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  FROZEN
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  MEMBER
+}
+
+enum ContentStatus {
+  PUBLISHED
+  DRAFT
+}
+
+model Company {
+  id                  String             @id @default(uuid())
+  name                String
+  subdomain           String?            @unique
+  customDomain        String?            @unique
+  subscriptionStatus  SubscriptionStatus @default(ACTIVE)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  users               User[]
+  posts               Post[]
+  events              Event[]
+  blogs               Blog[]
+  podcasts            Podcast[]
+  resources           Resource[]
+  subscription        Subscription?
+
+  @@map("companies")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  companyId    String?
+  company      Company? @relation(fields: [companyId], references: [id])
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(MEMBER)
+  firstName    String?
+  lastName     String?
+  avatarUrl    String?
+  bio          String?
+  headline     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  posts        Post[]
+
+  @@map("users")
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  content   String
+  mediaUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("posts")
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  title       String
+  description String
+  eventDate   DateTime
+  location    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("events")
+}
+
+model Blog {
+  id          String        @id @default(uuid())
+  companyId   String
+  company     Company       @relation(fields: [companyId], references: [id])
+  title       String
+  description String
+  content     String
+  status      ContentStatus @default(PUBLISHED)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("blogs")
+}
+
+model Podcast {
+  id          String        @id @default(uuid())
+  companyId   String
+  company     Company       @relation(fields: [companyId], references: [id])
+  title       String
+  description String
+  url         String
+  status      ContentStatus @default(PUBLISHED)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("podcasts")
+}
+
+model Resource {
+  id          String        @id @default(uuid())
+  companyId   String
+  company     Company       @relation(fields: [companyId], references: [id])
+  title       String
+  description String
+  url         String
+  status      ContentStatus @default(PUBLISHED)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("resources")
+}
+
+model Subscription {
+  id               String   @id @default(uuid())
+  companyId        String   @unique
+  company          Company  @relation(fields: [companyId], references: [id])
+  stripeCustomerId String?
+  planName         String
+  expiresAt        DateTime
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("subscriptions")
+}
