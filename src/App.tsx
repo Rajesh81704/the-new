@@ -37,6 +37,8 @@ import SuperAdminDashboard from "./pages/super-admin/SuperAdminDashboard";
 import SuperAdminCompanies from "./pages/super-admin/SuperAdminCompanies";
 import SuperAdminBilling from "./pages/super-admin/SuperAdminBilling";
 import SuperAdminSettings from "./pages/super-admin/SuperAdminSettings";
+import SuperAdminApplications from "./pages/super-admin/SuperAdminApplications";
+import CompanyLandingPage from "./pages/CompanyLandingPage";
 
 const queryClient = new QueryClient();
 
