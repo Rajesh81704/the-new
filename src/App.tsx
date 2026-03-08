@@ -80,6 +80,7 @@ const App = () => (
                 <Route path="/super-admin/billing" element={<SuperAdminBilling />} />
                 <Route path="/super-admin/settings" element={<SuperAdminSettings />} />
               </Route>
+              <Route path="/card/:id" element={<PublicCardPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
