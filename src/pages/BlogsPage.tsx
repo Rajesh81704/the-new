@@ -150,6 +150,7 @@ const BlogsPage = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.04 }}
+                onClick={() => navigate(`/blogs/${slugify(b.title)}`)}
                 className="bg-card rounded-2xl border border-border overflow-hidden hover:shadow-sm transition-shadow cursor-pointer group"
               >
                 {/* Content */}
