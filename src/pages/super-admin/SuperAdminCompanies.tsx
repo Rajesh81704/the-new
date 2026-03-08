@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,8 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, MoreVertical, Building2, Search, LogIn } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Plus, MoreVertical, Building2, Search, LogIn, Users, CreditCard, Layers, Globe, TrendingUp, Calendar } from "lucide-react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 const ALL_MODULES = [
   { id: "members", label: "Members Management" },
@@ -42,14 +44,22 @@ interface Company {
   billingCycle: string;
   status: "active" | "inactive" | "suspended";
   currentMembers: number;
+  domain?: string;
+  createdAt: string;
 }
 
 const initialCompanies: Company[] = [
-  { id: "1", name: "TechNet India", maxMembers: 1000, modules: ["members", "events", "podcasts", "blogs", "resources", "friends", "feed", "messaging", "analytics", "settings", "membership"], amount: 50000, billingCycle: "monthly", status: "active", currentMembers: 500 },
-  { id: "2", name: "StartupHub", maxMembers: 250, modules: ["members", "events", "blogs", "feed", "friends", "settings"], amount: 25000, billingCycle: "quarterly", status: "active", currentMembers: 120 },
-  { id: "3", name: "BizConnect", maxMembers: 50, modules: ["members", "events", "feed", "settings"], amount: 8000, billingCycle: "monthly", status: "active", currentMembers: 45 },
-  { id: "4", name: "NetVentures", maxMembers: 250, modules: ["members", "events", "podcasts", "blogs", "resources", "feed", "settings"], amount: 30000, billingCycle: "yearly", status: "active", currentMembers: 89 },
+  { id: "1", name: "TechNet India", maxMembers: 1000, modules: ["members", "events", "podcasts", "blogs", "resources", "friends", "feed", "messaging", "analytics", "settings", "membership"], amount: 50000, billingCycle: "monthly", status: "active", currentMembers: 500, domain: "technet.in", createdAt: "Jan 2025" },
+  { id: "2", name: "StartupHub", maxMembers: 250, modules: ["members", "events", "blogs", "feed", "friends", "settings"], amount: 25000, billingCycle: "quarterly", status: "active", currentMembers: 120, domain: "startuphub.co", createdAt: "Mar 2025" },
+  { id: "3", name: "BizConnect", maxMembers: 50, modules: ["members", "events", "feed", "settings"], amount: 8000, billingCycle: "monthly", status: "active", currentMembers: 45, domain: "bizconnect.io", createdAt: "Jun 2025" },
+  { id: "4", name: "NetVentures", maxMembers: 250, modules: ["members", "events", "podcasts", "blogs", "resources", "feed", "settings"], amount: 30000, billingCycle: "yearly", status: "active", currentMembers: 89, domain: "netventures.com", createdAt: "Aug 2025" },
 ];
+
+const planFromModules = (count: number) => {
+  if (count >= 9) return { name: "Enterprise", color: "bg-primary/10 text-primary border-primary/20" };
+  if (count >= 5) return { name: "Pro", color: "bg-accent/10 text-accent border-accent/20" };
+  return { name: "Starter", color: "bg-muted text-muted-foreground border-border" };
+};
 
 export default function SuperAdminCompanies() {
   const navigate = useNavigate();
@@ -84,7 +94,7 @@ export default function SuperAdminCompanies() {
       setCompanies(prev => prev.map(c => c.id === editingCompany.id ? { ...c, name: formName, maxMembers: Number(formMaxMembers), amount: Number(formAmount), billingCycle: formBillingCycle, modules: formModules } : c));
       toast.success("Company updated successfully");
     } else {
-      const newCompany: Company = { id: Date.now().toString(), name: formName, maxMembers: Number(formMaxMembers), modules: formModules, amount: Number(formAmount), billingCycle: formBillingCycle, status: "active", currentMembers: 0 };
+      const newCompany: Company = { id: Date.now().toString(), name: formName, maxMembers: Number(formMaxMembers), modules: formModules, amount: Number(formAmount), billingCycle: formBillingCycle, status: "active", currentMembers: 0, createdAt: "Mar 2026" };
       setCompanies(prev => [...prev, newCompany]);
       toast.success("Company created successfully");
     }
@@ -107,13 +117,16 @@ export default function SuperAdminCompanies() {
 
   const filtered = companies.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
 
+  const totalRevenue = companies.reduce((sum, c) => sum + c.amount, 0);
+  const totalMembers = companies.reduce((sum, c) => sum + c.currentMembers, 0);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="font-heading text-2xl font-bold text-foreground">Companies</h1>
           <p className="text-sm text-muted-foreground mt-1">Manage networking companies and their configurations</p>
-        </div>
+        </motion.div>
         <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
           <DialogTrigger asChild>
             <Button onClick={openCreate} className="gap-2"><Plus className="w-4 h-4" /> Add Company</Button>
@@ -168,61 +181,154 @@ export default function SuperAdminCompanies() {
         </Dialog>
       </div>
 
+      {/* Summary Cards */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="p-3.5 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/10">
+          <div className="flex items-center gap-2 mb-1">
+            <Building2 className="w-3.5 h-3.5 text-primary" />
+            <span className="text-[10px] uppercase tracking-wider text-primary font-semibold">Companies</span>
+          </div>
+          <p className="text-lg font-bold font-heading text-foreground">{companies.length}</p>
+        </div>
+        <div className="p-3.5 rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/10">
+          <div className="flex items-center gap-2 mb-1">
+            <Users className="w-3.5 h-3.5 text-accent" />
+            <span className="text-[10px] uppercase tracking-wider text-accent font-semibold">Members</span>
+          </div>
+          <p className="text-lg font-bold font-heading text-foreground">{totalMembers.toLocaleString()}</p>
+        </div>
+        <div className="p-3.5 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/10">
+          <div className="flex items-center gap-2 mb-1">
+            <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
+            <span className="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold">Revenue</span>
+          </div>
+          <p className="text-lg font-bold font-heading text-foreground">₹{totalRevenue.toLocaleString("en-IN")}</p>
+        </div>
+        <div className="p-3.5 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/10">
+          <div className="flex items-center gap-2 mb-1">
+            <TrendingUp className="w-3.5 h-3.5 text-blue-600" />
+            <span className="text-[10px] uppercase tracking-wider text-blue-700 font-semibold">Active</span>
+          </div>
+          <p className="text-lg font-bold font-heading text-foreground">{companies.filter(c => c.status === "active").length}/{companies.length}</p>
+        </div>
+      </motion.div>
+
+      {/* Search */}
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search companies..." className="pl-9" />
       </div>
 
+      {/* Company Cards */}
       <div className="grid gap-4">
-        {filtered.map(c => (
-          <Card key={c.id} className="shadow-sm">
-            <CardContent className="p-5">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-xl bg-primary/10 text-primary">
-                    <Building2 className="w-5 h-5" />
+        {filtered.map((c, i) => {
+          const plan = planFromModules(c.modules.length);
+          const usage = Math.round((c.currentMembers / c.maxMembers) * 100);
+          const usageColor = usage >= 90 ? "text-destructive" : usage >= 70 ? "text-accent" : "text-primary";
+
+          return (
+            <motion.div key={c.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+              <Card className="shadow-sm border-0 overflow-hidden hover:shadow-md transition-shadow">
+                <CardContent className="p-0">
+                  {/* Gradient accent bar */}
+                  <div className={`h-1 ${c.status === "active" ? "bg-gradient-to-r from-primary to-accent" : "bg-gradient-to-r from-destructive/60 to-destructive/30"}`} />
+
+                  <div className="p-5">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                      {/* Left: Company Info */}
+                      <div className="flex items-start gap-4 flex-1 min-w-0">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center text-lg font-bold font-heading text-primary shrink-0">
+                          {c.name.charAt(0)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-heading font-bold text-foreground text-base">{c.name}</h3>
+                            <Badge className={`text-[10px] border ${plan.color}`}>{plan.name}</Badge>
+                            <Badge variant={c.status === "active" ? "default" : "destructive"} className="text-[10px]">
+                              {c.status === "active" ? "● Active" : "● Suspended"}
+                            </Badge>
+                          </div>
+
+                          {c.domain && (
+                            <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                              <Globe className="w-3 h-3" />
+                              {c.domain}
+                            </div>
+                          )}
+
+                          {/* Stats Row */}
+                          <div className="grid grid-cols-3 gap-4 mt-3">
+                            <div>
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
+                                <Users className="w-3 h-3" /> Members
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Progress value={usage} className="h-1.5 flex-1" />
+                                <span className={`text-xs font-semibold ${usageColor}`}>{usage}%</span>
+                              </div>
+                              <p className="text-[11px] text-muted-foreground mt-0.5">{c.currentMembers}/{c.maxMembers}</p>
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
+                                <CreditCard className="w-3 h-3" /> Billing
+                              </div>
+                              <p className="text-sm font-semibold text-foreground">₹{c.amount.toLocaleString("en-IN")}</p>
+                              <p className="text-[11px] text-muted-foreground">{BILLING_CYCLES.find(b => b.value === c.billingCycle)?.label}</p>
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
+                                <Layers className="w-3 h-3" /> Modules
+                              </div>
+                              <p className="text-sm font-semibold text-foreground">{c.modules.length}</p>
+                              <p className="text-[11px] text-muted-foreground">of {ALL_MODULES.length} available</p>
+                            </div>
+                          </div>
+
+                          {/* Module Tags */}
+                          <div className="flex flex-wrap gap-1 mt-3">
+                            {c.modules.slice(0, 6).map(m => (
+                              <span key={m} className="px-2 py-0.5 rounded-md bg-muted text-[10px] text-muted-foreground font-medium">
+                                {ALL_MODULES.find(mod => mod.id === m)?.label}
+                              </span>
+                            ))}
+                            {c.modules.length > 6 && (
+                              <span className="px-2 py-0.5 rounded-md bg-primary/10 text-[10px] text-primary font-medium">
+                                +{c.modules.length - 6} more
+                              </span>
+                            )}
+                          </div>
+
+                          {c.createdAt && (
+                            <div className="flex items-center gap-1 mt-2 text-[10px] text-muted-foreground/60">
+                              <Calendar className="w-3 h-3" /> Created {c.createdAt}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Right: Actions */}
+                      <div className="flex sm:flex-col items-center gap-2 shrink-0">
+                        <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => navigate("/admin")}>
+                          <LogIn className="w-3.5 h-3.5" /> Enter Panel
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => openEdit(c)}>Edit Company</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => toggleStatus(c.id)}>{c.status === "active" ? "Suspend" : "Activate"}</DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive" onClick={() => deleteCompany(c.id)}>Delete</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-heading font-semibold text-foreground">{c.name}</h3>
-                      <Badge variant={c.status === "active" ? "default" : "destructive"} className="text-[10px]">
-                        {c.status}
-                      </Badge>
-                    </div>
-                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                      <span>Members: {c.currentMembers}/{c.maxMembers}</span>
-                      <span>•</span>
-                      <span>₹{c.amount.toLocaleString("en-IN")}/{BILLING_CYCLES.find(b => b.value === c.billingCycle)?.label}</span>
-                      <span>•</span>
-                      <span>{c.modules.length} modules</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1 pt-1">
-                      {c.modules.slice(0, 5).map(m => (
-                        <Badge key={m} variant="secondary" className="text-[10px] font-normal">
-                          {ALL_MODULES.find(mod => mod.id === m)?.label}
-                        </Badge>
-                      ))}
-                      {c.modules.length > 5 && <Badge variant="secondary" className="text-[10px] font-normal">+{c.modules.length - 5} more</Badge>}
-                    </div>
-                  </div>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => navigate("/admin")}>
-                      <LogIn className="w-3.5 h-3.5 mr-2" /> Enter Admin Panel
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => openEdit(c)}>Edit</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => toggleStatus(c.id)}>{c.status === "active" ? "Suspend" : "Activate"}</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive" onClick={() => deleteCompany(c.id)}>Delete</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                </CardContent>
+              </Card>
+            </motion.div>
+          );
+        })}
         {filtered.length === 0 && (
           <div className="text-center py-12 text-muted-foreground text-sm">No companies found</div>
         )}
