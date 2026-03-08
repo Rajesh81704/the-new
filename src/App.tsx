@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
+import { AdminLayout } from "@/components/AdminLayout";
 import { PostsProvider } from "@/lib/postsContext";
 import { ProfileProvider } from "@/lib/profileContext";
 import HomePage from "./pages/HomePage";
@@ -18,6 +19,13 @@ import MyProfilePage from "./pages/MyProfilePage";
 import ResourcesPage from "./pages/ResourcesPage";
 import BlogsPage from "./pages/BlogsPage";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminMembers from "./pages/admin/AdminMembers";
+import AdminEvents from "./pages/admin/AdminEvents";
+import AdminPodcasts from "./pages/admin/AdminPodcasts";
+import AdminBlogs from "./pages/admin/AdminBlogs";
+import AdminResources from "./pages/admin/AdminResources";
+import AdminTerms from "./pages/admin/AdminTerms";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +50,15 @@ const App = () => (
                 <Route path="/my-profile" element={<MyProfilePage />} />
                 <Route path="/resources" element={<ResourcesPage />} />
                 <Route path="/blogs" element={<BlogsPage />} />
+              </Route>
+              <Route element={<AdminLayout />}>
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/members" element={<AdminMembers />} />
+                <Route path="/admin/events" element={<AdminEvents />} />
+                <Route path="/admin/podcasts" element={<AdminPodcasts />} />
+                <Route path="/admin/blogs" element={<AdminBlogs />} />
+                <Route path="/admin/resources" element={<AdminResources />} />
+                <Route path="/admin/terms" element={<AdminTerms />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
