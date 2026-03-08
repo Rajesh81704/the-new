@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { User, LogOut, FileText, Newspaper, UserCircle } from "lucide-react";
+import { User, LogOut, FileText, Newspaper, UserCircle, BookOpen, PenLine } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
