@@ -21,3 +21,5 @@ export const AuthAPI = {
     login: async (data: any) => apiClient.post('/auth/login', data),
     register: async (data: any) => apiClient.post('/auth/register', data),
 };
+
+export default apiClient;

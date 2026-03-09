@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { AdminLayout } from "@/components/AdminLayout";
 import { PostsProvider } from "@/lib/postsContext";
@@ -42,7 +42,116 @@ import SuperAdminSettings from "./pages/super-admin/SuperAdminSettings";
 import SuperAdminApplications from "./pages/super-admin/SuperAdminApplications";
 import CompanyLandingPage from "./pages/CompanyLandingPage";
 
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import UserLandingPage from "./pages/LandingPages/UserLandingPage";
+import CompanyAdminLandingPage from "./pages/LandingPages/CompanyAdminLandingPage";
+import SuperAdminLandingPage from "./pages/LandingPages/SuperAdminLandingPage";
+import LoginPage from "./pages/LandingPages/LoginPage";
+import ForgotPasswordPage from "./pages/LandingPages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/LandingPages/ResetPasswordPage";
+
 const queryClient = new QueryClient();
+
+const getAppVariant = () => {
+  const hostname = window.location.hostname;
+  if (hostname.startsWith("admin.")) return "superadmin";
+  if (hostname.startsWith("company.")) return "companyadmin";
+  if (hostname.startsWith("user.")) return "user";
+  return "main";
+};
+
+const AppRoutes = () => {
+  const variant = getAppVariant();
+
+  if (variant === "superadmin") {
+    return (
+      <Routes>
+        <Route path="/" element={<SuperAdminLandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route element={<ProtectedRoute><SuperAdminLayout /></ProtectedRoute>}>
+          <Route path="/super-admin" element={<SuperAdminDashboard />} />
+          <Route path="/super-admin/companies" element={<SuperAdminCompanies />} />
+          <Route path="/super-admin/billing" element={<SuperAdminBilling />} />
+          <Route path="/super-admin/settings" element={<SuperAdminSettings />} />
+          <Route path="/super-admin/applications" element={<SuperAdminApplications />} />
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    );
+  }
+
+  if (variant === "companyadmin") {
+    return (
+      <Routes>
+        <Route path="/" element={<CompanyAdminLandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/members" element={<AdminMembers />} />
+          <Route path="/admin/events" element={<AdminEvents />} />
+          <Route path="/admin/podcasts" element={<AdminPodcasts />} />
+          <Route path="/admin/blogs" element={<AdminBlogs />} />
+          <Route path="/admin/resources" element={<AdminResources />} />
+          <Route path="/admin/terms" element={<AdminTerms />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/membership" element={<AdminMembership />} />
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    );
+  }
+
+  if (variant === "user") {
+    return (
+      <Routes>
+        <Route path="/" element={<UserLandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+          <Route path="/friends" element={<FriendsPage />} />
+          <Route path="/events" element={<EventsPage />} />
+          <Route path="/my-feed" element={<MyFeedPage />} />
+          <Route path="/members" element={<MembersPage />} />
+          <Route path="/podcast" element={<PodcastPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/profile/:id" element={<ProfilePage />} />
+          <Route path="/my-profile" element={<MyProfilePage />} />
+          <Route path="/my-invoices" element={<MyInvoicesPage />} />
+          <Route path="/resources" element={<ResourcesPage />} />
+          <Route path="/blogs" element={<BlogsPage />} />
+          <Route path="/blogs/:slug" element={<BlogDetailPage />} />
+          <Route path="/share-business" element={<ShareBusinessPage />} />
+          {/* Default user landing logic if they login but hit an unhandled path */}
+          <Route path="/home" element={<HomePage />} />
+        </Route>
+        {/* Public routes accessed by users without auth */}
+        <Route path="/card/:id" element={<PublicCardPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    );
+  }
+
+  // Main Landing Page
+  return (
+    <Routes>
+      <Route path="/" element={<CompanyLandingPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/get-started" element={<Navigate to="/" replace />} />
+      {/* Retain public cards on main domain just in case */}
+      <Route path="/card/:id" element={<PublicCardPage />} />
+
+      {/* Fallbacks for legacy/local development -> we can redirect to the corresponding subdomains if you host them, but for now we'll just redirect to home */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -54,45 +163,7 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
-                <Routes>
-                  <Route element={<AppLayout />}>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/friends" element={<FriendsPage />} />
-                    <Route path="/events" element={<EventsPage />} />
-                    <Route path="/members" element={<MembersPage />} />
-                    <Route path="/podcast" element={<PodcastPage />} />
-                    <Route path="/terms" element={<TermsPage />} />
-                    <Route path="/profile/:id" element={<ProfilePage />} />
-                    <Route path="/my-feed" element={<MyFeedPage />} />
-                    <Route path="/my-profile" element={<MyProfilePage />} />
-                    <Route path="/my-invoices" element={<MyInvoicesPage />} />
-                    <Route path="/resources" element={<ResourcesPage />} />
-                    <Route path="/blogs" element={<BlogsPage />} />
-                    <Route path="/blogs/:slug" element={<BlogDetailPage />} />
-                    <Route path="/share-business" element={<ShareBusinessPage />} />
-                  </Route>
-                  <Route element={<AdminLayout />}>
-                    <Route path="/admin" element={<AdminDashboard />} />
-                    <Route path="/admin/members" element={<AdminMembers />} />
-                    <Route path="/admin/events" element={<AdminEvents />} />
-                    <Route path="/admin/podcasts" element={<AdminPodcasts />} />
-                    <Route path="/admin/blogs" element={<AdminBlogs />} />
-                    <Route path="/admin/resources" element={<AdminResources />} />
-                    <Route path="/admin/terms" element={<AdminTerms />} />
-                    <Route path="/admin/settings" element={<AdminSettings />} />
-                    <Route path="/admin/membership" element={<AdminMembership />} />
-                  </Route>
-                  <Route element={<SuperAdminLayout />}>
-                    <Route path="/super-admin" element={<SuperAdminDashboard />} />
-                    <Route path="/super-admin/companies" element={<SuperAdminCompanies />} />
-                    <Route path="/super-admin/billing" element={<SuperAdminBilling />} />
-                    <Route path="/super-admin/settings" element={<SuperAdminSettings />} />
-                    <Route path="/super-admin/applications" element={<SuperAdminApplications />} />
-                  </Route>
-                  <Route path="/card/:id" element={<PublicCardPage />} />
-                  <Route path="/get-started" element={<CompanyLandingPage />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+                <AppRoutes />
               </BrowserRouter>
             </PostsProvider>
           </ApplicationsProvider>

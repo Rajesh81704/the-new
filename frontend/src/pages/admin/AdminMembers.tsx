@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import api from "@/lib/api";
 
 interface Member {
   id: string;
@@ -20,17 +21,42 @@ interface Member {
   status: "active" | "inactive";
 }
 
-const initialMembers: Member[] = [];
-
 const emptyMember = { id: "", name: "", role: "", company: "", category: "", email: "", city: "", status: "active" as const };
 
 const AdminMembers = () => {
   const navigate = useNavigate();
-  const [members, setMembers] = useState<Member[]>(initialMembers);
+  const [members, setMembers] = useState<Member[]>([]);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Member | null>(null);
   const [form, setForm] = useState<Omit<Member, "id">>(emptyMember);
+
+  import("react").then((React) => {
+    React.useEffect(() => {
+      const fetchMembers = async () => {
+        try {
+          const res = await api.get("/admin/members");
+          if (res.data?.data) {
+            // Map backend user schema to the frontend Member format
+            const mapped = res.data.data.map((u: any) => ({
+              id: u.id,
+              name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'User',
+              role: u.role || 'Member',
+              company: u.companyId || 'Current Company',
+              category: 'General',
+              email: u.email,
+              city: 'N/A',
+              status: 'active'
+            }));
+            setMembers(mapped);
+          }
+        } catch (error) {
+          toast.error("Failed to load members");
+        }
+      };
+      fetchMembers();
+    }, []);
+  });
 
   const filtered = members.filter(m =>
     m.name.toLowerCase().includes(search.toLowerCase()) || m.category.toLowerCase().includes(search.toLowerCase())

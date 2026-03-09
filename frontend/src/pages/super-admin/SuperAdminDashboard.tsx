@@ -3,21 +3,17 @@ import { Badge } from "@/components/ui/badge";
 import { Building2, Users, CreditCard, TrendingUp, ArrowUpRight, ArrowDownRight, Activity, Globe, Shield, Clock, BarChart3 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
+import { useState, useEffect } from "react";
+import api from "@/lib/api";
 
-const stats = [
-  { label: "Total Companies", value: "12", change: "+2", up: true, icon: Building2, gradient: "from-primary/15 to-primary/5", iconBg: "bg-primary/10 text-primary" },
-  { label: "Total Members", value: "1,847", change: "+124", up: true, icon: Users, gradient: "from-accent/15 to-accent/5", iconBg: "bg-accent/10 text-accent" },
-  { label: "Monthly Revenue", value: "₹4,52,000", change: "+18%", up: true, icon: CreditCard, gradient: "from-emerald-500/15 to-emerald-500/5", iconBg: "bg-emerald-500/10 text-emerald-600" },
-  { label: "Active Rate", value: "94.2%", change: "-0.8%", up: false, icon: Activity, gradient: "from-blue-500/15 to-blue-500/5", iconBg: "bg-blue-500/10 text-blue-600" },
+const initialStats = [
+  { label: "Total Companies", value: "0", change: "...", up: true, icon: Building2, gradient: "from-primary/15 to-primary/5", iconBg: "bg-primary/10 text-primary" },
+  { label: "Total Members", value: "0", change: "...", up: true, icon: Users, gradient: "from-accent/15 to-accent/5", iconBg: "bg-accent/10 text-accent" },
+  { label: "Monthly Revenue", value: "...", change: "...", up: true, icon: CreditCard, gradient: "from-emerald-500/15 to-emerald-500/5", iconBg: "bg-emerald-500/10 text-emerald-600" },
+  { label: "Active Rate", value: "...", change: "...", up: false, icon: Activity, gradient: "from-blue-500/15 to-blue-500/5", iconBg: "bg-blue-500/10 text-blue-600" },
 ];
 
-const recentCompanies = [
-  { name: "TechNet India", plan: "Enterprise", members: 500, maxMembers: 1000, status: "Active", revenue: "₹50,000", trend: "+12%" },
-  { name: "StartupHub", plan: "Pro", members: 120, maxMembers: 250, status: "Active", revenue: "₹25,000", trend: "+8%" },
-  { name: "BizConnect", plan: "Starter", members: 45, maxMembers: 50, status: "Warning", revenue: "₹8,000", trend: "+2%" },
-  { name: "NetVentures", plan: "Pro", members: 89, maxMembers: 250, status: "Active", revenue: "₹30,000", trend: "+15%" },
-  { name: "ConnectPro", plan: "Enterprise", members: 340, maxMembers: 500, status: "Active", revenue: "₹45,000", trend: "+22%" },
-];
+const initialCompanies: any[] = [];
 
 const recentActivity = [
   { action: "New company registered", detail: "ConnectPro — Enterprise Plan", time: "2 hours ago", icon: Building2 },
@@ -35,6 +31,30 @@ const platformMetrics = [
 ];
 
 export default function SuperAdminDashboard() {
+  const [stats, setStats] = useState(initialStats);
+  const [recentCompanies, setRecentCompanies] = useState(initialCompanies);
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const res = await api.get("/super-admin/stats");
+        if (res.data?.data) {
+          const apiStats = res.data.data.stats || [];
+          setStats((prev) =>
+            prev.map((s) => {
+              const apiMatch = apiStats.find((f: any) => f.label === s.label);
+              return apiMatch ? { ...s, value: apiMatch.value } : s;
+            })
+          );
+          setRecentCompanies(res.data.data.recentCompanies || []);
+        }
+      } catch (error) {
+        console.error("Failed to load super admin stats", error);
+      }
+    };
+    fetchDashboard();
+  }, []);
+
   return (
     <div className="space-y-6">
       {/* Header */}

@@ -72,7 +72,7 @@ export default function CompanyLandingPage() {
             <span className="font-heading font-bold text-foreground">Net<span className="text-primary">Link</span></span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/admin")}>Login</Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>Login</Button>
             <Button size="sm" onClick={() => setApplyOpen(true)}>Apply Now</Button>
           </div>
         </div>

@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { useEffect } from "react";
+import api from "@/lib/api";
 
 interface Event {
   id: string; title: string; date: string; time: string; location: string; category: string; description: string; image_url: string;
@@ -22,6 +24,30 @@ const AdminEvents = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Event | null>(null);
   const [form, setForm] = useState(emptyEvent);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await api.get("/admin/events");
+        if (res.data?.data) {
+          const mapped = res.data.data.map((e: any) => ({
+            id: e.id,
+            title: e.title,
+            date: new Date(e.eventDate).toLocaleDateString(),
+            time: new Date(e.eventDate).toLocaleTimeString(),
+            location: e.location || 'Online',
+            category: "General",
+            description: e.description || '',
+            image_url: ''
+          }));
+          setEvents(mapped);
+        }
+      } catch (err) {
+        toast.error("Failed to load events");
+      }
+    };
+    fetchEvents();
+  }, []);
 
   const openCreate = () => { setEditing(null); setForm(emptyEvent); setDialogOpen(true); };
   const openEdit = (e: Event) => { setEditing(e); setForm(e); setDialogOpen(true); };

@@ -46,4 +46,13 @@ export class SuperAdminController extends BaseController {
             this.handleError(error, res, 'SuperAdminController.updateSubscription');
         }
     }
+
+    async getDashboardStats(req: Request, res: Response): Promise<void> {
+        try {
+            const stats = await this.superAdminService.getStats();
+            this.handleSuccess(res, stats);
+        } catch (error) {
+            this.handleError(error, res, 'SuperAdminController.getDashboardStats');
+        }
+    }
 }

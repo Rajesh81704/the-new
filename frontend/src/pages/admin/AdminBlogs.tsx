@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { useEffect } from "react";
+import api from "@/lib/api";
 
 interface Blog {
   id: string; title: string; excerpt: string; content: string; author: string; tag: string; published_at: string; is_published: boolean;
@@ -22,6 +24,30 @@ const AdminBlogs = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Blog | null>(null);
   const [form, setForm] = useState(emptyBlog);
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const res = await api.get("/admin/blogs");
+        if (res.data?.data) {
+          const mapped = res.data.data.map((b: any) => ({
+            id: b.id,
+            title: b.title,
+            excerpt: b.description || '',
+            content: b.content || '',
+            author: 'Admin',
+            tag: 'News',
+            published_at: new Date(b.createdAt).toLocaleDateString(),
+            is_published: b.status === "PUBLISHED"
+          }));
+          setBlogs(mapped);
+        }
+      } catch (err) {
+        toast.error("Failed to load blogs");
+      }
+    };
+    fetchBlogs();
+  }, []);
 
   const openCreate = () => { setEditing(null); setForm(emptyBlog); setDialogOpen(true); };
   const openEdit = (b: Blog) => { setEditing(b); setForm(b); setDialogOpen(true); };

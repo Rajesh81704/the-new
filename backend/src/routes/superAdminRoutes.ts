@@ -16,5 +16,6 @@ router.use(superAdminMiddlewareDummy);
 router.get('/companies', asyncErrorWrapper((req, res) => superAdminController.getCompanies(req, res) as any));
 router.post('/companies', asyncErrorWrapper((req, res) => superAdminController.createCompany(req, res) as any));
 router.put('/companies/:companyId/subscription', asyncErrorWrapper((req, res) => superAdminController.updateSubscription(req, res) as any));
+router.get('/stats', asyncErrorWrapper((req, res) => superAdminController.getDashboardStats(req, res) as any));
 
 export default router;

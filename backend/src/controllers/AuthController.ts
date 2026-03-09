@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { BaseController } from './BaseController';
 import { AuthService } from '../services/authService';
-import { loginSchema, registerSchema } from '../validators/auth.schema';
+import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema } from '../validators/auth.schema';
 
 export class AuthController extends BaseController {
     private authService: AuthService;
@@ -28,6 +28,26 @@ export class AuthController extends BaseController {
             this.handleSuccess(res, result);
         } catch (error) {
             this.handleError(error, res, 'AuthController.login');
+        }
+    }
+
+    async forgotPassword(req: Request, res: Response): Promise<void> {
+        try {
+            const data = forgotPasswordSchema.parse(req.body);
+            const result = await this.authService.forgotPassword(data);
+            this.handleSuccess(res, result);
+        } catch (error) {
+            this.handleError(error, res, 'AuthController.forgotPassword');
+        }
+    }
+
+    async resetPassword(req: Request, res: Response): Promise<void> {
+        try {
+            const data = resetPasswordSchema.parse(req.body);
+            const result = await this.authService.resetPassword(data);
+            this.handleSuccess(res, result);
+        } catch (error) {
+            this.handleError(error, res, 'AuthController.resetPassword');
         }
     }
 }

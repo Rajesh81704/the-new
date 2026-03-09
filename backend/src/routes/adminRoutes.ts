@@ -19,4 +19,7 @@ router.post('/events', asyncErrorWrapper((req, res) => adminController.createEve
 router.get('/blogs', asyncErrorWrapper((req, res) => adminController.getBlogs(req, res) as any));
 router.post('/blogs', asyncErrorWrapper((req, res) => adminController.createBlog(req, res) as any));
 
+router.get('/members', asyncErrorWrapper((req, res) => adminController.getMembers(req, res) as any));
+router.get('/stats', asyncErrorWrapper((req, res) => adminController.getDashboardStats(req, res) as any));
+
 export default router;

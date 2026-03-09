@@ -61,4 +61,24 @@ export class AdminController extends BaseController {
             this.handleError(error, res, 'AdminController.createBlog');
         }
     }
+
+    async getMembers(req: Request, res: Response): Promise<void> {
+        try {
+            const companyId = (req as any).user?.companyId || 'default-company-id';
+            const members = await this.adminService.getMembers(companyId);
+            this.handleSuccess(res, members);
+        } catch (error) {
+            this.handleError(error, res, 'AdminController.getMembers');
+        }
+    }
+
+    async getDashboardStats(req: Request, res: Response): Promise<void> {
+        try {
+            const companyId = (req as any).user?.companyId || 'default-company-id';
+            const stats = await this.adminService.getStats(companyId);
+            this.handleSuccess(res, stats);
+        } catch (error) {
+            this.handleError(error, res, 'AdminController.getDashboardStats');
+        }
+    }
 }

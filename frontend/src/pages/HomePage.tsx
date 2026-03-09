@@ -6,57 +6,12 @@ import { motion } from "framer-motion";
 import feedFunding from "@/assets/feed-funding.jpg";
 import feedPodcast from "@/assets/feed-podcast.jpg";
 import feedSummit from "@/assets/feed-summit.jpg";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import api from "@/lib/api";
 
-const feedData = [
-  {
-    avatar: "SL",
-    name: "Sarah Lawson",
-    role: "CEO at Nexora Labs",
-    content: "Thrilled to announce our Series A funding! Looking forward to connecting with more founders at next week's networking mixer. 🚀",
-    tag: "Update",
-    image: feedFunding,
-    likes: 42,
-    comments: 8,
-  },
-  {
-    avatar: "MK",
-    name: "Michael Kerr",
-    role: "Marketing Director",
-    content: "Just published a new episode of The Growth Loop podcast discussing retention strategies for SaaS products. Give it a listen!",
-    tag: "Podcast",
-    image: feedPodcast,
-    likes: 28,
-    comments: 5,
-  },
-  {
-    avatar: "JP",
-    name: "Jessica Park",
-    role: "UX Designer at Craft Studio",
-    content: "Great conversations at yesterday's Design Leadership Summit. The panel on inclusive design was outstanding. Who else was there?",
-    image: feedSummit,
-    likes: 35,
-    comments: 12,
-  },
-  {
-    avatar: "RD",
-    name: "Ryan Davis",
-    role: "Venture Partner",
-    content: "We're hosting an exclusive pitch night for early-stage startups. Applications close Friday — link in bio.",
-    tag: "Event",
-    likes: 67,
-    comments: 15,
-  },
-  {
-    avatar: "AK",
-    name: "Amara Kim",
-    role: "Product Manager at BuildFlow",
-    content: "Reflections on transitioning from engineering to product management — lessons learned after 6 months in my new role.",
-    likes: 53,
-    comments: 21,
-  },
-];
-
+// Assuming UserPost format from postsContext
+// We will still display context ones along with backend if we want,
+// but let's fetch backend posts and render them.
 const getYoutubeId = (url: string) => {
   const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?\s]{11})/);
   return match ? match[1] : null;
@@ -128,26 +83,43 @@ function timeAgo(date: Date) {
 }
 
 const HomePage = () => {
-  const { posts } = usePosts();
+  const { posts: contextPosts } = usePosts();
+  const [backendPosts, setBackendPosts] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await api.get("/feed");
+        if (res.data?.data) {
+          setBackendPosts(res.data.data.map((p: any) => ({
+            ...p,
+            likes: 0,
+            timestamp: new Date(p.createdAt)
+          })));
+        }
+      } catch (error) {
+        console.error("Error loading posts", error);
+      }
+    };
+    fetchPosts();
+  }, []);
+
+  const allPosts = [...contextPosts, ...backendPosts];
 
   return (
     <div className="min-h-screen bg-section-teal/40">
-    <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
-      <div className="mb-2">
-        <h2 className="font-heading font-bold text-xl text-foreground">Feed</h2>
-        <p className="text-sm text-muted-foreground">Stay updated with your network</p>
+      <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
+        <div className="mb-2">
+          <h2 className="font-heading font-bold text-xl text-foreground">Feed</h2>
+          <p className="text-sm text-muted-foreground">Stay updated with your network</p>
+        </div>
+
+        <CreatePost />
+
+        {allPosts.map((post, i) => (
+          <UserPostCard key={post.id || i} post={post} index={i} />
+        ))}
       </div>
-
-      <CreatePost />
-
-      {posts.map((post, i) => (
-        <UserPostCard key={post.id} post={post} index={i} />
-      ))}
-
-      {feedData.map((item, i) => (
-        <FeedCard key={i} index={i + posts.length} {...item} />
-      ))}
-    </div>
     </div>
   );
 };

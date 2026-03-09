@@ -24,42 +24,46 @@ enum ContentStatus {
 }
 
 model Company {
-  id                  String             @id @default(uuid())
-  name                String
-  subdomain           String?            @unique
-  customDomain        String?            @unique
-  subscriptionStatus  SubscriptionStatus @default(ACTIVE)
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
+  id                 String             @id @default(uuid())
+  name               String
+  companyCode        String             @unique
+  subdomain          String?            @unique
+  customDomain       String?            @unique
+  subscriptionStatus SubscriptionStatus @default(ACTIVE)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
 
-  users               User[]
-  posts               Post[]
-  events              Event[]
-  blogs               Blog[]
-  podcasts            Podcast[]
-  resources           Resource[]
-  subscription        Subscription?
+  users        User[]
+  posts        Post[]
+  events       Event[]
+  blogs        Blog[]
+  podcasts     Podcast[]
+  resources    Resource[]
+  subscription Subscription?
 
   @@map("companies")
 }
 
 model User {
-  id           String   @id @default(uuid())
-  companyId    String?
-  company      Company? @relation(fields: [companyId], references: [id])
-  email        String   @unique
-  passwordHash String
-  role         Role     @default(MEMBER)
-  firstName    String?
-  lastName     String?
-  avatarUrl    String?
-  bio          String?
-  headline     String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id               String    @id @default(uuid())
+  companyId        String?
+  company          Company?  @relation(fields: [companyId], references: [id])
+  email            String
+  passwordHash     String
+  role             Role      @default(MEMBER)
+  firstName        String?
+  lastName         String?
+  avatarUrl        String?
+  bio              String?
+  headline         String?
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-  posts        Post[]
+  posts Post[]
 
+  @@unique([email, companyId])
   @@map("users")
 }
 

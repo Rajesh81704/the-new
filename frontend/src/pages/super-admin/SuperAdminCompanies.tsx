@@ -13,6 +13,8 @@ import { Progress } from "@/components/ui/progress";
 import { Plus, MoreVertical, Building2, Search, LogIn, Users, CreditCard, Layers, Globe, TrendingUp, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
+import api from "@/lib/api";
 
 const ALL_MODULES = [
   { id: "members", label: "Members Management" },
@@ -62,6 +64,32 @@ export default function SuperAdminCompanies() {
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const res = await api.get("/super-admin/companies");
+        if (res.data?.data) {
+          const mapped = res.data.data.map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            maxMembers: 1000,
+            modules: ["members", "events"],
+            amount: 5000,
+            billingCycle: "monthly",
+            status: c.subscriptionStatus === "ACTIVE" ? "active" : "inactive",
+            currentMembers: 0,
+            domain: c.customDomain || c.subdomain,
+            createdAt: new Date(c.createdAt).toLocaleDateString()
+          }));
+          setCompanies(mapped);
+        }
+      } catch (err) {
+        toast.error("Failed to load companies");
+      }
+    };
+    fetchCompanies();
+  }, []);
 
   const [formName, setFormName] = useState("");
   const [formMaxMembers, setFormMaxMembers] = useState("");
