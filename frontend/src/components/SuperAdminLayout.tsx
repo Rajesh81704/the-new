@@ -10,7 +10,7 @@ const superAdminItems = [
   { title: "Dashboard", url: "/super-admin", icon: LayoutDashboard },
   { title: "Companies", url: "/super-admin/companies", icon: Building2 },
   { title: "Applications", url: "/super-admin/applications", icon: ClipboardList },
-  { title: "Billing Plans", url: "/super-admin/billing", icon: CreditCard },
+  { title: "Packages & Billing", url: "/super-admin/billing", icon: CreditCard },
   { title: "Settings", url: "/super-admin/settings", icon: Settings },
 ];
 

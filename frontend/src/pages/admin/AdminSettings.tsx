@@ -6,29 +6,31 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Globe, CreditCard, CheckCircle2, AlertCircle, Copy, XCircle, ExternalLink, IndianRupee, FileText, Paintbrush, Upload, ImageIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Globe, CreditCard, CheckCircle2, AlertCircle, Copy, XCircle, ExternalLink, IndianRupee, FileText, Paintbrush, Upload, ImageIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "@/lib/api";
 
 const PAYMENT_GATEWAYS = [
-  { id: "razorpay", name: "Razorpay", description: "India's leading payment gateway", fields: ["Key ID", "Key Secret"], icon: "₹" },
-  { id: "phonepe", name: "PhonePe", description: "UPI & wallet payments", fields: ["Merchant ID", "Salt Key", "Salt Index"], icon: "₹" },
-  { id: "cashfree", name: "Cashfree", description: "Payment gateway for India", fields: ["App ID", "Secret Key"], icon: "₹" },
-  { id: "payuindia", name: "PayU India", description: "All-in-one payment solution", fields: ["Merchant Key", "Merchant Salt"], icon: "₹" },
-  { id: "instamojo", name: "Instamojo", description: "Simple payments for businesses", fields: ["API Key", "Auth Token"], icon: "₹" },
-  { id: "ccavenue", name: "CCAvenue", description: "Secure online payments", fields: ["Merchant ID", "Access Code", "Working Key"], icon: "₹" },
+  { id: "razorpay", name: "Razorpay", description: "India's leading payment gateway", color: "#3395FF", dashboardUrl: "https://dashboard.razorpay.com", logo: "💳" },
+  { id: "stripe", name: "Stripe", description: "Global payment infrastructure for the internet", color: "#635BFF", dashboardUrl: "https://dashboard.stripe.com", logo: "🌐" },
+  { id: "phonepe", name: "PhonePe", description: "UPI & wallet payments for India", color: "#5F259F", dashboardUrl: "https://business.phonepe.com", logo: "📱" },
+  { id: "cashfree", name: "Cashfree", description: "Next-gen payment gateway", color: "#00C853", dashboardUrl: "https://merchant.cashfree.com", logo: "⚡" },
+  { id: "payuindia", name: "PayU India", description: "All-in-one payment solution", color: "#E85A13", dashboardUrl: "https://onboarding.payu.in", logo: "₹" },
+  { id: "ccavenue", name: "CCAvenue", description: "Secure online payments since 2001", color: "#E31837", dashboardUrl: "https://www.ccavenue.com/login.jsp", logo: "🏦" },
 ];
 
-interface GatewayConfig {
-  enabled: boolean;
-  values: Record<string, string>;
-  verified?: boolean;
-}
+type ConnectStep = "idle" | "prompt" | "waiting" | "verifying" | "done";
+interface GatewayState { step: ConnectStep; connected: boolean; }
 
 export default function AdminSettings() {
   const [baseDomain, setBaseDomain] = useState("connectpro.in");
-  const [gateways, setGateways] = useState<Record<string, GatewayConfig>>({});
+  // OAuth gateway state
+  const [gatewayStates, setGatewayStates] = useState<Record<string, GatewayState>>(
+    Object.fromEntries(PAYMENT_GATEWAYS.map(g => [g.id, { step: "idle" as ConnectStep, connected: false }]))
+  );
+  const [activeGateway, setActiveGateway] = useState<typeof PAYMENT_GATEWAYS[0] | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>(localStorage.getItem("companyLogo") || "");
   const [logoUploading, setLogoUploading] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -67,30 +69,6 @@ export default function AdminSettings() {
     toast.success(`${label} copied to clipboard`);
   };
 
-  const toggleGateway = (id: string) => {
-    setGateways(prev => ({
-      ...prev,
-      [id]: { ...prev[id], enabled: !prev[id]?.enabled, values: prev[id]?.values || {} },
-    }));
-  };
-
-  const updateGatewayField = (gatewayId: string, field: string, value: string) => {
-    setGateways(prev => ({
-      ...prev,
-      [gatewayId]: { ...prev[gatewayId], values: { ...prev[gatewayId]?.values, [field]: value }, verified: false },
-    }));
-  };
-
-  const verifyAndSaveGateway = (id: string) => {
-    toast.info(`Verifying ${PAYMENT_GATEWAYS.find(g => g.id === id)?.name} credentials...`);
-    setTimeout(() => {
-      setGateways(prev => ({
-        ...prev,
-        [id]: { ...prev[id], verified: true }
-      }));
-      toast.success(`${PAYMENT_GATEWAYS.find(g => g.id === id)?.name} connected and verified successfully!`);
-    }, 1500);
-  };
 
   const renderDomainRow = (title: string, name: string) => (
     <div className="border border-border rounded-xl overflow-hidden mb-6">
@@ -238,81 +216,124 @@ export default function AdminSettings() {
         </TabsContent>
 
         <TabsContent value="payments" className="space-y-4">
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-1">
             <CreditCard className="w-5 h-5 text-primary" />
-            <h2 className="font-heading text-lg font-semibold text-foreground">Indian Payment Gateways</h2>
-            <p className="text-sm text-muted-foreground ml-2">Enable direct verifications for faster onboarding</p>
+            <h2 className="font-heading text-lg font-semibold text-foreground">Payment Gateways</h2>
+            <p className="text-sm text-muted-foreground ml-2">Connect via OAuth — no manual key entry needed</p>
           </div>
 
-          <div className="grid gap-4">
-            {PAYMENT_GATEWAYS.map(gw => {
-              const config = gateways[gw.id];
-              const isEnabled = config?.enabled;
-              const isVerified = config?.verified;
+          <div className="grid sm:grid-cols-2 gap-3">
+            {PAYMENT_GATEWAYS.map((gw, i) => {
+              const gs = gatewayStates[gw.id];
+              const isConnected = gs?.connected;
+              const isVerifying = gs?.step === "verifying";
 
               return (
-                <Card key={gw.id} className={`shadow-sm transition-colors ${isEnabled ? "border-primary/50 ring-1 ring-primary/20" : ""}`}>
-                  <CardContent className="p-5">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-heading font-semibold text-foreground text-base flex items-center gap-1.5">
-                            <span className="w-5 h-5 bg-muted rounded flex items-center justify-center text-xs font-bold text-primary">{gw.icon}</span>
-                            {gw.name}
-                          </h3>
-                          {isEnabled && (
-                            <Badge variant={isVerified ? "default" : "secondary"} className={isVerified ? "bg-emerald-500 text-white hover:bg-emerald-600" : ""}>
-                              {isVerified ? "Verified" : "Pending Verification"}
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">{gw.description}</p>
-                      </div>
-                      <Switch checked={!!isEnabled} onCheckedChange={() => toggleGateway(gw.id)} />
+                <motion.div key={gw.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
+                  <div className={`relative flex items-center gap-3 p-4 rounded-xl border transition-all ${isConnected
+                    ? "border-emerald-400/60 bg-emerald-50/50 dark:bg-emerald-900/10 ring-1 ring-emerald-400/30"
+                    : "border-border hover:border-primary/40 hover:bg-muted/30"
+                    }`}>
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0 shadow-sm"
+                      style={{ background: `${gw.color}20`, border: `1px solid ${gw.color}40` }}
+                    >
+                      {gw.logo}
                     </div>
-
-                    <AnimatePresence>
-                      {isEnabled && (
-                        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                          <div className="space-y-4 pt-4 mt-2 border-t border-border">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                              {gw.fields.map(field => (
-                                <div key={field} className="space-y-1.5">
-                                  <Label className="text-xs font-medium text-muted-foreground">{field}</Label>
-                                  <Input
-                                    type="password"
-                                    placeholder={`Enter ${field}`}
-                                    value={config?.values?.[field] || ""}
-                                    onChange={e => updateGatewayField(gw.id, field, e.target.value)}
-                                    className="h-9 text-sm"
-                                  />
-                                </div>
-                              ))}
-                            </div>
-                            <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-                              <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
-                                <AlertCircle className="w-3.5 h-3.5" /> Keys are encrypted and stored securely
-                              </p>
-                              <div className="flex gap-2">
-                                <Button size="sm" variant="outline" className="gap-1.5 text-xs h-8">
-                                  <ExternalLink className="w-3.5 h-3.5" /> Get Keys
-                                </Button>
-                                <Button size="sm" onClick={() => verifyAndSaveGateway(gw.id)} className="h-8 text-xs gap-1.5" disabled={isVerified}>
-                                  {isVerified ? <CheckCircle2 className="w-3.5 h-3.5" /> : null}
-                                  {isVerified ? "Connected" : `Verify & Connect ${gw.name}`}
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </CardContent>
-                </Card>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-semibold text-sm text-foreground font-heading">{gw.name}</span>
+                        {isConnected && (
+                          <Badge className="text-[10px] bg-emerald-500 text-white hover:bg-emerald-600 py-0">Connected</Badge>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{gw.description}</p>
+                    </div>
+                    {isVerifying ? (
+                      <Loader2 className="w-5 h-5 text-primary animate-spin shrink-0" />
+                    ) : isConnected ? (
+                      <Button
+                        size="sm" variant="outline"
+                        className="text-xs h-7 gap-1 text-destructive border-destructive/30 hover:bg-destructive/10 shrink-0"
+                        onClick={() => { setGatewayStates(prev => ({ ...prev, [gw.id]: { step: "idle", connected: false } })); toast.info(`${gw.name} disconnected`); }}
+                      >
+                        <XCircle className="w-3.5 h-3.5" /> Disconnect
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        className="text-xs h-7 gap-1 shrink-0"
+                        style={{ background: gw.color }}
+                        onClick={() => { setActiveGateway(gw); setGatewayStates(prev => ({ ...prev, [gw.id]: { ...prev[gw.id], step: "prompt" } })); }}
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" /> Connect
+                      </Button>
+                    )}
+                  </div>
+                </motion.div>
               );
             })}
           </div>
+
+          {/* OAuth Connect Dialog */}
+          <Dialog
+            open={!!activeGateway && !!gatewayStates[activeGateway?.id ?? ""]?.step && gatewayStates[activeGateway?.id ?? ""]?.step !== "idle" && gatewayStates[activeGateway?.id ?? ""]?.step !== "done"}
+            onOpenChange={o => { if (!o) setActiveGateway(null); }}
+          >
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="font-heading flex items-center gap-2">
+                  <span className="text-2xl">{activeGateway?.logo}</span>
+                  Connect {activeGateway?.name}
+                </DialogTitle>
+              </DialogHeader>
+              <AnimatePresence mode="wait">
+                {gatewayStates[activeGateway?.id ?? ""]?.step === "prompt" && (
+                  <motion.div key="prompt" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-4 pt-1">
+                    <div className="p-4 rounded-xl border border-border bg-muted/30 text-sm space-y-2">
+                      <p className="font-medium text-foreground">How it works:</p>
+                      <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+                        <li>Click <strong>Continue to {activeGateway?.name}</strong> below</li>
+                        <li>Log in and go to <strong>Settings → API / Integrations</strong></li>
+                        <li>Grant access to <em>Magically Super</em></li>
+                        <li>Come back and confirm below</li>
+                      </ol>
+                    </div>
+                    <Button
+                      className="w-full gap-2"
+                      style={{ background: activeGateway?.color }}
+                      onClick={() => { window.open(activeGateway?.dashboardUrl, "_blank", "noopener"); setGatewayStates(prev => ({ ...prev, [activeGateway!.id]: { ...prev[activeGateway!.id], step: "waiting" } })); }}
+                    >
+                      <ExternalLink className="w-4 h-4" /> Continue to {activeGateway?.name} →
+                    </Button>
+                    <Button variant="outline" className="w-full" onClick={() => { setGatewayStates(prev => ({ ...prev, [activeGateway!.id]: { ...prev[activeGateway!.id], step: "verifying" } })); setTimeout(() => { setGatewayStates(prev => ({ ...prev, [activeGateway!.id]: { step: "done", connected: true } })); toast.success(`${activeGateway?.name} connected! 🎉`); setActiveGateway(null); }, 1800); }}>
+                      I've Authorized Access
+                    </Button>
+                  </motion.div>
+                )}
+                {gatewayStates[activeGateway?.id ?? ""]?.step === "waiting" && (
+                  <motion.div key="waiting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4 pt-1">
+                    <div className="p-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 text-sm text-amber-800 dark:text-amber-300">
+                      <p className="font-medium">Waiting for your confirmation…</p>
+                      <p className="mt-1 text-xs">Once you've authorized in the {activeGateway?.name} dashboard, click below.</p>
+                    </div>
+                    <Button className="w-full gap-2" style={{ background: activeGateway?.color }} onClick={() => { setGatewayStates(prev => ({ ...prev, [activeGateway!.id]: { ...prev[activeGateway!.id], step: "verifying" } })); setTimeout(() => { setGatewayStates(prev => ({ ...prev, [activeGateway!.id]: { step: "done", connected: true } })); toast.success(`${activeGateway?.name} connected! 🎉`); setActiveGateway(null); }, 1800); }}>
+                      <CheckCircle2 className="w-4 h-4" /> I've Authorized Access
+                    </Button>
+                  </motion.div>
+                )}
+                {gatewayStates[activeGateway?.id ?? ""]?.step === "verifying" && (
+                  <motion.div key="verifying" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center gap-4 py-8">
+                    <Loader2 className="w-10 h-10 text-primary animate-spin" />
+                    <p className="text-sm font-medium">Verifying connection with {activeGateway?.name}…</p>
+                    <p className="text-xs text-muted-foreground">This usually takes a few seconds</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </DialogContent>
+          </Dialog>
         </TabsContent>
+
         <TabsContent value="invoices" className="space-y-4">
           <Card className="shadow-sm border-0">
             <CardHeader className="bg-gradient-to-r from-primary/10 to-transparent border-b border-border pb-4">

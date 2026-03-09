@@ -10,10 +10,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Progress } from "@/components/ui/progress";
-import { Plus, MoreVertical, Building2, Search, LogIn, Users, CreditCard, Layers, Globe, TrendingUp, Calendar } from "lucide-react";
+import { Plus, MoreVertical, Building2, Search, LogIn, Users, CreditCard, Layers, Globe, TrendingUp, Calendar, Package } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
+import { usePackages, BILLING_CYCLE_LABELS } from "@/lib/packagesStore";
 import api from "@/lib/api";
 
 const ALL_MODULES = [
@@ -30,12 +31,7 @@ const ALL_MODULES = [
   { id: "membership", label: "Membership Plans" },
 ];
 
-const BILLING_CYCLES = [
-  { value: "monthly", label: "Monthly" },
-  { value: "quarterly", label: "Every 4 Months" },
-  { value: "biannual", label: "Every 6 Months" },
-  { value: "yearly", label: "Yearly" },
-];
+
 
 interface Company {
   id: string;
@@ -44,6 +40,8 @@ interface Company {
   modules: string[];
   amount: number;
   billingCycle: string;
+  packageId?: string;
+  packageName?: string;
   status: "active" | "inactive" | "suspended";
   currentMembers: number;
   domain?: string;
@@ -60,6 +58,8 @@ const planFromModules = (count: number) => {
 
 export default function SuperAdminCompanies() {
   const navigate = useNavigate();
+  const allPackages = usePackages();
+  const activePackages = allPackages.filter(p => p.active);
   const [companies, setCompanies] = useState<Company[]>(initialCompanies);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -93,31 +93,41 @@ export default function SuperAdminCompanies() {
 
   const [formName, setFormName] = useState("");
   const [formMaxMembers, setFormMaxMembers] = useState("");
-  const [formAmount, setFormAmount] = useState("");
-  const [formBillingCycle, setFormBillingCycle] = useState("monthly");
+  const [formPackageId, setFormPackageId] = useState("");
   const [formModules, setFormModules] = useState<string[]>([]);
 
+  const selectedPackage = allPackages.find(p => p.id === formPackageId);
+
   const resetForm = () => {
-    setFormName(""); setFormMaxMembers(""); setFormAmount(""); setFormBillingCycle("monthly"); setFormModules([]); setEditingCompany(null);
+    setFormName(""); setFormMaxMembers(""); setFormPackageId(""); setFormModules([]); setEditingCompany(null);
   };
 
   const openCreate = () => { resetForm(); setDialogOpen(true); };
 
   const openEdit = (c: Company) => {
     setEditingCompany(c);
-    setFormName(c.name); setFormMaxMembers(String(c.maxMembers)); setFormAmount(String(c.amount)); setFormBillingCycle(c.billingCycle); setFormModules(c.modules);
+    setFormName(c.name); setFormMaxMembers(String(c.maxMembers));
+    setFormPackageId(c.packageId || ""); setFormModules(c.modules);
     setDialogOpen(true);
   };
 
   const handleSave = () => {
-    if (!formName.trim() || !formMaxMembers || !formAmount) {
-      toast.error("Please fill all required fields"); return;
+    if (!formName.trim() || !formMaxMembers || !formPackageId) {
+      toast.error("Please fill all required fields including a Payment Package"); return;
     }
+    const pkg = allPackages.find(p => p.id === formPackageId);
     if (editingCompany) {
-      setCompanies(prev => prev.map(c => c.id === editingCompany.id ? { ...c, name: formName, maxMembers: Number(formMaxMembers), amount: Number(formAmount), billingCycle: formBillingCycle, modules: formModules } : c));
+      setCompanies(prev => prev.map(c => c.id === editingCompany.id
+        ? { ...c, name: formName, maxMembers: Number(formMaxMembers), packageId: formPackageId, packageName: pkg?.name, amount: pkg?.amount ?? 0, billingCycle: pkg?.billingCycle ?? "monthly", modules: formModules }
+        : c));
       toast.success("Company updated successfully");
     } else {
-      const newCompany: Company = { id: Date.now().toString(), name: formName, maxMembers: Number(formMaxMembers), modules: formModules, amount: Number(formAmount), billingCycle: formBillingCycle, status: "active", currentMembers: 0, createdAt: "Mar 2026" };
+      const newCompany: Company = {
+        id: Date.now().toString(), name: formName, maxMembers: Number(formMaxMembers),
+        modules: formModules, amount: pkg?.amount ?? 0, billingCycle: pkg?.billingCycle ?? "monthly",
+        packageId: formPackageId, packageName: pkg?.name,
+        status: "active", currentMembers: 0, createdAt: "Mar 2026"
+      };
       setCompanies(prev => [...prev, newCompany]);
       toast.success("Company created successfully");
     }
@@ -168,19 +178,34 @@ export default function SuperAdminCompanies() {
                   <Label>Max Members *</Label>
                   <Input type="number" value={formMaxMembers} onChange={e => setFormMaxMembers(e.target.value)} placeholder="e.g. 500" />
                 </div>
-                <div className="space-y-2">
-                  <Label>Amount (₹) *</Label>
-                  <Input type="number" value={formAmount} onChange={e => setFormAmount(e.target.value)} placeholder="e.g. 25000" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Billing Cycle</Label>
-                  <Select value={formBillingCycle} onValueChange={setFormBillingCycle}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+              </div>
+
+              {/* Payment Package Picker */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5"><Package className="w-3.5 h-3.5 text-primary" /> Payment Package *</Label>
+                {activePackages.length === 0 ? (
+                  <div className="p-3 rounded-lg border border-dashed border-border text-sm text-muted-foreground text-center">
+                    No active packages yet. Go to <span className="text-primary font-medium">Packages &amp; Billing</span> to create one first.
+                  </div>
+                ) : (
+                  <Select value={formPackageId} onValueChange={setFormPackageId}>
+                    <SelectTrigger><SelectValue placeholder="Select a payment package..." /></SelectTrigger>
                     <SelectContent>
-                      {BILLING_CYCLES.map(b => <SelectItem key={b.value} value={b.value}>{b.label}</SelectItem>)}
+                      {activePackages.map(p => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.name} — ₹{p.amount.toLocaleString("en-IN")} / {BILLING_CYCLE_LABELS[p.billingCycle]}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                </div>
+                )}
+                {selectedPackage && (
+                  <div className="flex items-center gap-2 mt-1 px-3 py-2 rounded-lg bg-primary/5 border border-primary/20">
+                    <CreditCard className="w-4 h-4 text-primary shrink-0" />
+                    <span className="text-sm font-medium text-foreground">{selectedPackage.name}</span>
+                    <span className="text-xs text-muted-foreground ml-auto">₹{selectedPackage.amount.toLocaleString("en-IN")} · {BILLING_CYCLE_LABELS[selectedPackage.billingCycle]}</span>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-3">
@@ -296,7 +321,7 @@ export default function SuperAdminCompanies() {
                                 <CreditCard className="w-3 h-3" /> Billing
                               </div>
                               <p className="text-sm font-semibold text-foreground">₹{c.amount.toLocaleString("en-IN")}</p>
-                              <p className="text-[11px] text-muted-foreground">{BILLING_CYCLES.find(b => b.value === c.billingCycle)?.label}</p>
+                              <p className="text-[11px] text-muted-foreground">{c.packageName || BILLING_CYCLE_LABELS[c.billingCycle as keyof typeof BILLING_CYCLE_LABELS] || c.billingCycle}</p>
                             </div>
                             <div>
                               <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
