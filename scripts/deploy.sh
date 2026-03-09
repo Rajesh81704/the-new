@@ -41,12 +41,12 @@ git reset --hard "origin/$BRANCH"
 
 echo "[deploy] building frontend"
 cd "$APP_DIR/frontend"
-npm ci
+npm ci --include=dev
 npm run build
 
 echo "[deploy] building backend"
 cd "$APP_DIR/backend"
-npm ci
+npm ci --include=dev
 npx prisma generate
 npx prisma db push
 node prisma/seed.js
