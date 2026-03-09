@@ -50,7 +50,8 @@ npm ci --include=dev
 npx prisma generate
 
 echo "[deploy] preparing companies.companyCode for existing rows"
-psql "$DATABASE_URL" <<'SQL'
+PSQL_DATABASE_URL="$(printf '%s' "$DATABASE_URL" | sed -E 's/([?&])schema=[^&]*(&?)/\1\2/g; s/\?&/\?/g; s/&&/&/g; s/[?&]$//')"
+psql "$PSQL_DATABASE_URL" <<'SQL'
 ALTER TABLE "companies"
 ADD COLUMN IF NOT EXISTS "companyCode" TEXT;
 
