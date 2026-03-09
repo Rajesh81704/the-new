@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 export default function SuperAdminSettings() {
-  const [platformName, setPlatformName] = useState("NetLink SaaS");
+  const [platformName, setPlatformName] = useState("Magically Super SaaS");
   const [supportEmail, setSupportEmail] = useState("support@netlink.com");
   const [autoApprove, setAutoApprove] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);

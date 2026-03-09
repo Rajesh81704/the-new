@@ -32,7 +32,7 @@ const features = [
 ];
 
 const testimonials = [
-  { name: "Amit Patel", company: "TechNet India", text: "NetLink helped us scale our community from 100 to 1000+ members in 6 months.", stars: 5 },
+  { name: "Amit Patel", company: "TechNet India", text: "Magically Super helped us scale our community from 100 to 1000+ members in 6 months.", stars: 5 },
   { name: "Sneha Kapoor", company: "StartupHub", text: "The admin panel is incredibly powerful. We manage everything from one place.", stars: 5 },
   { name: "Vikram Singh", company: "BizConnect", text: "Setting up was seamless. Our members love the digital business card feature.", stars: 4 },
 ];
@@ -69,7 +69,7 @@ export default function CompanyLandingPage() {
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Building2 className="w-6 h-6 text-primary" />
-            <span className="font-heading font-bold text-foreground">Net<span className="text-primary">Link</span></span>
+            <span className="font-heading font-bold text-foreground">Magically <span className="text-primary">Super</span></span>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>Login</Button>
@@ -212,9 +212,9 @@ export default function CompanyLandingPage() {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <Building2 className="w-5 h-5 text-primary" />
-            <span className="font-heading font-bold text-foreground">Net<span className="text-primary">Link</span></span>
+            <span className="font-heading font-bold text-foreground">Magically <span className="text-primary">Super</span></span>
           </div>
-          <p>© 2026 NetLink. All rights reserved.</p>
+          <p>© 2026 Magically Super. All rights reserved.</p>
         </div>
       </footer>
 
@@ -260,7 +260,7 @@ export default function CompanyLandingPage() {
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Why do you want to use NetLink?</Label>
+              <Label className="text-xs">Why do you want to use Magically Super?</Label>
               <Textarea value={form.message} onChange={(e) => setField("message", e.target.value)} placeholder="Tell us about your community..." rows={3} />
             </div>
             <div className="flex justify-end gap-2">

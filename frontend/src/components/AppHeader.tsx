@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 // Helpers to read company branding stored at login
-const getCompanyName = () => localStorage.getItem("companyName") || "NetLink";
+const getCompanyName = () => localStorage.getItem("companyName") || "Magically Super";
 const getCompanyLogo = () => localStorage.getItem("companyLogo") || "";
 
 const getUserDisplayName = () => {

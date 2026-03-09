@@ -9,7 +9,7 @@ const TermsPage = () => {
       <div className="space-y-5 text-sm text-foreground/80 leading-relaxed">
         <section>
           <h3 className="font-heading font-semibold text-foreground mb-2">1. Acceptance of Terms</h3>
-          <p>By accessing and using NetLink, you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you may not access the platform.</p>
+          <p>By accessing and using Magically Super, you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you may not access the platform.</p>
         </section>
 
         <section>
@@ -24,7 +24,7 @@ const TermsPage = () => {
 
         <section>
           <h3 className="font-heading font-semibold text-foreground mb-2">4. Content</h3>
-          <p>Users retain ownership of content they post. By posting content, you grant NetLink a non-exclusive license to display and distribute your content within the platform.</p>
+          <p>Users retain ownership of content they post. By posting content, you grant Magically Super a non-exclusive license to display and distribute your content within the platform.</p>
         </section>
 
         <section>

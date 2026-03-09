@@ -17,6 +17,35 @@ export default function LoginPage() {
 
     const hostname = window.location.hostname;
     const isSuperAdmin = hostname.startsWith("admin.");
+    const isCompanyAdmin = hostname.startsWith("company.");
+
+    // Contextual labels per subdomain role
+    const loginContext = isSuperAdmin
+        ? {
+            title: "Magically Super",
+            badge: "🛡️ Super Admin Portal",
+            headline: "Global Control Panel",
+            tagline: "Aap Magically Super ke master administrator hain. Yahaan se aap sabhi companies aur platform ko manage kar sakte hain.",
+            formTitle: "Super Admin Sign In",
+            formSubtitle: "Sirf authorized super admins hi is portal ko access kar sakte hain.",
+        }
+        : isCompanyAdmin
+            ? {
+                title: "Magically Super",
+                badge: "🏢 Company Admin Portal",
+                headline: "Company Dashboard",
+                tagline: "Aap apni company ke admin hain. Yahaan se aap apni company ke members, events, blogs, aur settings manage kar sakte hain.",
+                formTitle: "Company Admin Sign In",
+                formSubtitle: "Apni email, password, aur Company ID enter karein apne admin dashboard tak pahunchne ke liye.",
+            }
+            : {
+                title: "Magically Super",
+                badge: "👤 Member Login Portal",
+                headline: "Your Professional Network",
+                tagline: "Yahaan aap kisi bhi company ke member ki tarah login kar sakte hain. Apna email, password, aur apni company ka unique Company ID enter karein.",
+                formTitle: "Member Sign In",
+                formSubtitle: "Apni company ka Company ID zaroor daalein — yahi aapko sahi network se jodega.",
+            };
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -82,9 +111,13 @@ export default function LoginPage() {
                         transition={{ duration: 0.8, delay: 0.1 }}
                         className="relative z-10"
                     >
-                        <h1 className="font-heading text-4xl font-bold tracking-tight text-foreground bg-clip-text">NetLink</h1>
-                        <p className="mt-2 text-muted-foreground w-3/4 leading-relaxed">
-                            The ultimate platform to connect, grow your network, and attend exclusive professional events.
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-primary/80 bg-primary/10 px-3 py-1 rounded-full mb-4">
+                            {loginContext.badge}
+                        </span>
+                        <h1 className="font-heading text-4xl font-bold tracking-tight text-foreground mt-2">{loginContext.title}</h1>
+                        <h2 className="font-heading text-xl font-semibold text-foreground/80 mt-1">{loginContext.headline}</h2>
+                        <p className="mt-3 text-muted-foreground w-3/4 leading-relaxed text-sm">
+                            {loginContext.tagline}
                         </p>
                     </motion.div>
 
@@ -99,7 +132,7 @@ export default function LoginPage() {
                                 <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21L16.426 14.435L21.436 12.01L16.426 9.585L14.017 3L11.608 9.585L6.598 12.01L11.608 14.435L14.017 21Z" /></svg>
                             </div>
                             <p className="text-lg font-medium text-foreground relative z-10 pl-4 italic">
-                                "NetLink completely transformed how our organization connects internationally and within our own private networks."
+                                "Magically Super completely transformed how our organization connects internationally and within our own private networks."
                             </p>
                             <div className="mt-4 flex items-center gap-3 pl-4">
                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold">
@@ -127,9 +160,9 @@ export default function LoginPage() {
                             <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
 
                             <div className="mb-8 text-center">
-                                <h2 className="text-3xl font-heading font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Welcome back</h2>
-                                <p className="text-sm text-muted-foreground mt-2">
-                                    {isSuperAdmin ? "Sign in to the global administration panel" : "Enter your details to access your dashboard"}
+                                <h2 className="text-3xl font-heading font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">{loginContext.formTitle}</h2>
+                                <p className="text-sm text-muted-foreground mt-2 leading-relaxed px-2">
+                                    {loginContext.formSubtitle}
                                 </p>
                             </div>
 

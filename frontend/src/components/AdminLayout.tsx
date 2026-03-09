@@ -53,7 +53,7 @@ function AdminSidebar() {
           <Shield className="w-6 h-6 text-primary shrink-0" />
           {!collapsed && (
             <span className="font-heading font-bold text-base text-sidebar-foreground">
-              Net<span className="text-primary">Link</span> Admin
+              Magically <span className="text-primary">Super</span> Admin
             </span>
           )}
         </div>

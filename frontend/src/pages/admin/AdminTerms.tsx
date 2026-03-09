@@ -10,10 +10,10 @@ const defaultTerms = `Terms and Conditions
 Last updated: March 1, 2026
 
 1. Acceptance of Terms
-By accessing and using NetLink, you accept and agree to be bound by the terms and provision of this agreement.
+By accessing and using Magically Super, you accept and agree to be bound by the terms and provision of this agreement.
 
 2. Use License
-Permission is granted to temporarily use NetLink for personal, non-commercial transitory viewing only.
+Permission is granted to temporarily use Magically Super for personal, non-commercial transitory viewing only.
 
 3. User Accounts
 You are responsible for safeguarding the password that you use to access the service and for any activities or actions under your password.

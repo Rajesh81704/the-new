@@ -25,7 +25,7 @@ export default function PublicCardPage() {
       <div className="w-full max-w-md">
         <BusinessCardPreview card={card} />
         <p className="text-center text-[10px] text-muted-foreground/50 mt-4">
-          Powered by NetLink
+          Powered by Magically Super
         </p>
       </div>
     </div>
