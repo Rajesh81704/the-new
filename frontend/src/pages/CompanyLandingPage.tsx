@@ -132,43 +132,6 @@ export default function CompanyLandingPage() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section className="py-16 px-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="font-heading text-3xl font-bold text-foreground">Simple Pricing</h2>
-            <p className="text-muted-foreground mt-2">Choose a plan that fits your community size</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {pricingPlans.map((plan) => (
-              <Card key={plan.name} className={`shadow-sm relative ${plan.highlight ? "border-primary border-2 shadow-md" : ""}`}>
-                {plan.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-primary text-primary-foreground text-[10px] font-semibold">
-                    Most Popular
-                  </div>
-                )}
-                <CardContent className="p-6 text-center space-y-4">
-                  <h3 className="font-heading font-bold text-foreground text-lg">{plan.name}</h3>
-                  <div>
-                    <span className="text-3xl font-extrabold font-heading text-foreground">{plan.price}</span>
-                    <span className="text-sm text-muted-foreground">{plan.period}</span>
-                  </div>
-                  <div className="space-y-2 text-sm text-muted-foreground">
-                    <p className="flex items-center gap-2 justify-center"><CheckCircle2 className="w-4 h-4 text-primary" />{plan.members}</p>
-                    <p className="flex items-center gap-2 justify-center"><CheckCircle2 className="w-4 h-4 text-primary" />{plan.modules}</p>
-                    <p className="flex items-center gap-2 justify-center"><CheckCircle2 className="w-4 h-4 text-primary" />Custom domain</p>
-                    <p className="flex items-center gap-2 justify-center"><CheckCircle2 className="w-4 h-4 text-primary" />Payment gateway</p>
-                  </div>
-                  <Button className="w-full" variant={plan.highlight ? "default" : "outline"} onClick={() => setApplyOpen(true)}>
-                    Get Started
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Testimonials */}
       <section className="py-16 px-4 bg-muted/30">
         <div className="max-w-5xl mx-auto">
