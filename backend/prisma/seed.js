@@ -15,6 +15,7 @@ async function main() {
     where: { subdomain: 'magicallysocial' },
     update: {
       name: 'Magically Social',
+      companyCode: 'MAGIC2026',
       subscriptionStatus: SubscriptionStatus.ACTIVE,
     },
     create: {
