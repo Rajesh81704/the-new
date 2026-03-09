@@ -107,7 +107,7 @@ WHERE u."id" = d."id";
 DROP TABLE _user_dupes;
 SQL
 
-npx prisma db push
+npx prisma db push --accept-data-loss
 node prisma/seed.js
 npm run build
 
