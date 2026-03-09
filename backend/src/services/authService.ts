@@ -155,4 +155,90 @@ export class AuthService {
 
         return { message: 'Password has been reset successfully' };
     }
+
+    async impersonate({ token, targetUserId }: { token: string, targetUserId: string }) {
+        const decoded: any = jwt.verify(token, unifiedConfig.auth.jwtSecret as jwt.Secret);
+        const requesterId = decoded.userId;
+        const requesterRole = decoded.role;
+        const requesterCompanyId = decoded.companyId;
+
+        const targetUser = await prisma.user.findUnique({
+            where: { id: targetUserId },
+            include: { company: true }
+        });
+
+        if (!targetUser) throw new Error('Target user not found');
+
+        // Authorization checks
+        if (requesterRole === 'SUPER_ADMIN') {
+            // Super admins can impersonate company admins (or basically anyone)
+        } else if (requesterRole === 'ADMIN') {
+            // Admins can only impersonate members in their own company
+            if (targetUser.companyId !== requesterCompanyId) {
+                throw new Error('Unauthorized to impersonate this user');
+            }
+        } else {
+            throw new Error('Unauthorized');
+        }
+
+        const impersonatedToken = jwt.sign(
+            { userId: targetUser.id, role: targetUser.role, companyId: targetUser.companyId },
+            unifiedConfig.auth.jwtSecret as jwt.Secret,
+            { expiresIn: unifiedConfig.auth.jwtExpiresIn as any }
+        );
+
+        const { passwordHash, ...userWithoutPassword } = targetUser;
+
+        return {
+            user: userWithoutPassword,
+            token: impersonatedToken,
+            company: targetUser.company ? {
+                name: targetUser.company.name,
+                logoUrl: targetUser.company.logoUrl,
+                activeModules: targetUser.company.activeModules
+            } : null
+        };
+    }
+
+    async adminResetPassword({ token, targetUserId }: { token: string, targetUserId: string }) {
+        const decoded: any = jwt.verify(token, unifiedConfig.auth.jwtSecret as jwt.Secret);
+        const requesterRole = decoded.role;
+        const requesterCompanyId = decoded.companyId;
+
+        const targetUser = await prisma.user.findUnique({
+            where: { id: targetUserId },
+            include: { company: true }
+        });
+
+        if (!targetUser) throw new Error('Target user not found');
+
+        // Authorization checks
+        if (requesterRole === 'SUPER_ADMIN') {
+            // Super admins can reset company admins
+        } else if (requesterRole === 'ADMIN') {
+            // Admins can reset users in their own company
+            if (targetUser.companyId !== requesterCompanyId) {
+                throw new Error('Unauthorized to reset this user');
+            }
+        } else {
+            throw new Error('Unauthorized');
+        }
+
+        // Generate a password based on details
+        const prefix = targetUser.company?.name ? targetUser.company.name.replace(/\s+/g, '') : (targetUser.firstName || 'User');
+        const randomNum = Math.floor(1000 + Math.random() * 9000); // 4 digit random
+        const generatedPassword = `${prefix}@${randomNum}`;
+
+        const hashedPassword = await bcrypt.hash(generatedPassword, 10);
+
+        await prisma.user.update({
+            where: { id: targetUser.id },
+            data: { passwordHash: hashedPassword }
+        });
+
+        return {
+            message: 'Password reset successfully',
+            generatedPassword
+        };
+    }
 }

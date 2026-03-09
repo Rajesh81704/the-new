@@ -6,6 +6,10 @@ export class SuperAdminService {
         return prisma.company.findMany({
             include: {
                 subscription: true,
+                users: {
+                    where: { role: 'ADMIN' },
+                    select: { id: true, email: true, firstName: true }
+                }
             },
             orderBy: { createdAt: 'desc' },
         });

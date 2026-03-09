@@ -50,4 +50,28 @@ export class AuthController extends BaseController {
             this.handleError(error, res, 'AuthController.resetPassword');
         }
     }
+
+    async impersonate(req: Request, res: Response): Promise<void> {
+        try {
+            const token = req.headers.authorization?.split(' ')[1];
+            if (!token) throw new Error('Unauthorized');
+            const { targetUserId } = req.body;
+            const result = await this.authService.impersonate({ token, targetUserId });
+            this.handleSuccess(res, result);
+        } catch (error) {
+            this.handleError(error, res, 'AuthController.impersonate');
+        }
+    }
+
+    async adminResetPassword(req: Request, res: Response): Promise<void> {
+        try {
+            const token = req.headers.authorization?.split(' ')[1];
+            if (!token) throw new Error('Unauthorized');
+            const { targetUserId } = req.body;
+            const result = await this.authService.adminResetPassword({ token, targetUserId });
+            this.handleSuccess(res, result);
+        } catch (error) {
+            this.handleError(error, res, 'AuthController.adminResetPassword');
+        }
+    }
 }

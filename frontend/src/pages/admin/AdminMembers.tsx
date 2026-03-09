@@ -82,6 +82,31 @@ const AdminMembers = () => {
     toast.success("Member deleted");
   };
 
+  const loginAsUser = async (userId: string) => {
+    try {
+      const res = await api.post('/auth/impersonate', { targetUserId: userId });
+      const { token, company } = res.data.data;
+      localStorage.setItem("token", token);
+      if (company?.activeModules) {
+        localStorage.setItem("companyModules", JSON.stringify(company.activeModules));
+      }
+      toast.success("Logged in as User!");
+      window.location.href = "/my-feed";
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to impersonate");
+    }
+  };
+
+  const resetUserPassword = async (userId: string) => {
+    try {
+      const res = await api.post('/auth/admin-reset-password', { targetUserId: userId });
+      const newPassword = res.data.data.generatedPassword;
+      alert(`Password successfully reset.\n\nNew Temporary Password: ${newPassword}\n\nPlease copy it and send it to the User.`);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to reset password");
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -138,8 +163,11 @@ const AdminMembers = () => {
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => navigate("/")}>
-                            <LogIn className="w-3.5 h-3.5 mr-2" /> Enter as User
+                          <DropdownMenuItem onClick={() => loginAsUser(m.id)}>
+                            <LogIn className="w-3.5 h-3.5 mr-2" /> Login As User
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => resetUserPassword(m.id)}>
+                            <Edit2 className="w-3.5 h-3.5 mr-2" /> Reset Password
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => openEdit(m)}>
                             <Edit2 className="w-3.5 h-3.5 mr-2" /> Edit

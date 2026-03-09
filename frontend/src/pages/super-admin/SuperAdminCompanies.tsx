@@ -46,6 +46,7 @@ interface Company {
   currentMembers: number;
   domain?: string;
   createdAt: string;
+  adminId?: string;
 }
 
 const initialCompanies: Company[] = [];
@@ -78,9 +79,10 @@ export default function SuperAdminCompanies() {
             amount: 5000,
             billingCycle: "monthly",
             status: c.subscriptionStatus === "ACTIVE" ? "active" : "inactive",
-            currentMembers: 0,
+            currentMembers: c._count?.users || 0,
             domain: c.customDomain || c.subdomain,
-            createdAt: new Date(c.createdAt).toLocaleDateString()
+            createdAt: new Date(c.createdAt).toLocaleDateString(),
+            adminId: c.users && c.users.length > 0 ? c.users[0].id : undefined
           }));
           setCompanies(mapped);
         }
@@ -146,6 +148,31 @@ export default function SuperAdminCompanies() {
   const deleteCompany = (id: string) => {
     setCompanies(prev => prev.filter(c => c.id !== id));
     toast.success("Company deleted");
+  };
+
+  const loginAsAdmin = async (adminId: string) => {
+    try {
+      const res = await api.post('/auth/impersonate', { targetUserId: adminId });
+      const { token, company } = res.data.data;
+      localStorage.setItem("token", token);
+      if (company?.activeModules) {
+        localStorage.setItem("companyModules", JSON.stringify(company.activeModules));
+      }
+      toast.success("Logged in as Company Admin!");
+      window.location.href = "/admin";
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to impersonate");
+    }
+  };
+
+  const resetAdminPassword = async (adminId: string) => {
+    try {
+      const res = await api.post('/auth/admin-reset-password', { targetUserId: adminId });
+      const newPassword = res.data.data.generatedPassword;
+      alert(`Password successfully reset.\n\nNew Temporary Password: ${newPassword}\n\nPlease copy it and send it to the Company Admin.`);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to reset password");
+    }
   };
 
   const filtered = companies.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
@@ -364,6 +391,12 @@ export default function SuperAdminCompanies() {
                             <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                            {c.adminId && (
+                              <>
+                                <DropdownMenuItem onClick={() => loginAsAdmin(c.adminId!)}>Login As Admin</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => resetAdminPassword(c.adminId!)}>Reset Admin Password</DropdownMenuItem>
+                              </>
+                            )}
                             <DropdownMenuItem onClick={() => openEdit(c)}>Edit Company</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => toggleStatus(c.id)}>{c.status === "active" ? "Suspend" : "Activate"}</DropdownMenuItem>
                             <DropdownMenuItem className="text-destructive" onClick={() => deleteCompany(c.id)}>Delete</DropdownMenuItem>
