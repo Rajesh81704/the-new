@@ -48,6 +48,23 @@ echo "[deploy] building backend"
 cd "$APP_DIR/backend"
 npm ci --include=dev
 npx prisma generate
+
+echo "[deploy] preparing companies.companyCode for existing rows"
+psql "$DATABASE_URL" <<'SQL'
+ALTER TABLE "companies"
+ADD COLUMN IF NOT EXISTS "companyCode" TEXT;
+
+UPDATE "companies"
+SET "companyCode" = CONCAT('CO', UPPER(SUBSTRING(MD5("id") FOR 8)))
+WHERE "companyCode" IS NULL;
+
+ALTER TABLE "companies"
+ALTER COLUMN "companyCode" SET NOT NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS "companies_companyCode_key"
+ON "companies"("companyCode");
+SQL
+
 npx prisma db push
 node prisma/seed.js
 npm run build
