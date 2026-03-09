@@ -4,9 +4,14 @@ set -euo pipefail
 APP_DIR="${APP_DIR:-/var/www/the-new}"
 BRANCH="${BRANCH:-main}"
 
+if [[ ! -f "$APP_DIR/backend/.env" ]]; then
+  echo "[deploy] $APP_DIR/backend/.env not found. Create it before deploying."
+  exit 1
+fi
+
 # Ensure Prisma commands use the VPS runtime DB URL from backend/.env.
 set -a
-source backend/.env
+source "$APP_DIR/backend/.env"
 set +a
 
 if [[ -z "${DATABASE_URL:-}" ]]; then
@@ -33,12 +38,6 @@ echo "[deploy] syncing repository"
 git fetch --all --prune
 git checkout "$BRANCH"
 git reset --hard "origin/$BRANCH"
-
-if [[ ! -f backend/.env ]]; then
-  echo "[deploy] backend/.env not found. Create it before deploying."
-  exit 1
-fi
-
 
 echo "[deploy] building frontend"
 cd "$APP_DIR/frontend"
