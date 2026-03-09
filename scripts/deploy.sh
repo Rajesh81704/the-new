@@ -23,6 +23,22 @@ if [[ ! -f backend/.env ]]; then
   exit 1
 fi
 
+# Ensure Prisma commands use the VPS runtime DB URL from backend/.env.
+set -a
+source backend/.env
+set +a
+
+if [[ -z "${DATABASE_URL:-}" ]]; then
+  echo "[deploy] DATABASE_URL is missing in backend/.env"
+  exit 1
+fi
+
+if [[ "$DATABASE_URL" == *"@host:"* || "$DATABASE_URL" == *"/db_name"* || "$DATABASE_URL" == *"user:password"* ]]; then
+  echo "[deploy] DATABASE_URL in backend/.env still contains placeholder values (host/db_name/user:password)."
+  echo "[deploy] Update backend/.env on VPS with real PostgreSQL connection details and rerun deploy."
+  exit 1
+fi
+
 echo "[deploy] building frontend"
 cd "$APP_DIR/frontend"
 npm ci
