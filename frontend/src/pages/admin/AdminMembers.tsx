@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Search, Edit2, Trash2, MoreHorizontal, LogIn } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -31,32 +31,30 @@ const AdminMembers = () => {
   const [editing, setEditing] = useState<Member | null>(null);
   const [form, setForm] = useState<Omit<Member, "id">>(emptyMember);
 
-  import("react").then((React) => {
-    React.useEffect(() => {
-      const fetchMembers = async () => {
-        try {
-          const res = await api.get("/admin/members");
-          if (res.data?.data) {
-            // Map backend user schema to the frontend Member format
-            const mapped = res.data.data.map((u: any) => ({
-              id: u.id,
-              name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'User',
-              role: u.role || 'Member',
-              company: u.companyId || 'Current Company',
-              category: 'General',
-              email: u.email,
-              city: 'N/A',
-              status: 'active'
-            }));
-            setMembers(mapped);
-          }
-        } catch (error) {
-          toast.error("Failed to load members");
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const res = await api.get("/admin/members");
+        if (res.data?.data) {
+          // Map backend user schema to the frontend Member format
+          const mapped = res.data.data.map((u: any) => ({
+            id: u.id,
+            name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'User',
+            role: u.role || 'Member',
+            company: u.companyId || 'Current Company',
+            category: 'General',
+            email: u.email,
+            city: 'N/A',
+            status: 'active'
+          }));
+          setMembers(mapped);
         }
-      };
-      fetchMembers();
-    }, []);
-  });
+      } catch (error) {
+        toast.error("Failed to load members");
+      }
+    };
+    fetchMembers();
+  }, []);
 
   const filtered = members.filter(m =>
     m.name.toLowerCase().includes(search.toLowerCase()) || m.category.toLowerCase().includes(search.toLowerCase())
