@@ -49,7 +49,7 @@ export default function LoginPage() {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email || !password || (!isSuperAdmin && !isCompanyAdmin && !companyCode)) {
+        if (!email || !password || (!isSuperAdmin && !companyCode)) {
             toast.error("Please fill in all required fields");
             return;
         }
@@ -57,7 +57,7 @@ export default function LoginPage() {
         try {
             setLoading(true);
             const payload: any = { email, password };
-            if (!isSuperAdmin && !isCompanyAdmin) {
+            if (!isSuperAdmin) {
                 payload.companyCode = companyCode;
             }
             const res = await api.post("/auth/login", payload);
@@ -183,7 +183,7 @@ export default function LoginPage() {
                                     </div>
                                 </div>
 
-                                {!isSuperAdmin && !isCompanyAdmin && (
+                                {!isSuperAdmin && (
                                     <div className="space-y-1.5">
                                         <Label htmlFor="companyCode" className="text-xs ml-1 text-muted-foreground uppercase tracking-wider font-semibold">Company ID</Label>
                                         <div className="relative">
