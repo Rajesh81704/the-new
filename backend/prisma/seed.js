@@ -21,6 +21,7 @@ async function main() {
       name: 'Magically Social',
       subdomain: 'magicallysocial',
       customDomain: 'magicallysocial.cloud',
+      companyCode: 'MAGIC2026',
       subscriptionStatus: SubscriptionStatus.ACTIVE,
     },
   });
