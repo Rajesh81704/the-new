@@ -81,4 +81,29 @@ export class AdminController extends BaseController {
             this.handleError(error, res, 'AdminController.getDashboardStats');
         }
     }
+
+    async uploadLogo(req: Request, res: Response): Promise<void> {
+        try {
+            const companyId = (req as any).user?.companyId;
+            if (!companyId) {
+                res.status(403).json({ success: false, message: 'Company ID missing from token' });
+                return;
+            }
+
+            if (!req.file) {
+                res.status(400).json({ success: false, message: 'No image file uploaded' });
+                return;
+            }
+
+            // Path to serve the static file: /uploads/[filename]
+            const logoUrl = `/uploads/${req.file.filename}`;
+
+            // Update in the DB using the service
+            const company = await this.adminService.updateCompanyLogo(companyId, logoUrl);
+
+            this.handleSuccess(res, { logoUrl: company.logoUrl }, 200);
+        } catch (error) {
+            this.handleError(error, res, 'AdminController.uploadLogo');
+        }
+    }
 }

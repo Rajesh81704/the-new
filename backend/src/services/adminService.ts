@@ -61,4 +61,11 @@ export class AdminService {
             recentActivity: [] // Empty for now, no complex activity feed
         };
     }
+
+    async updateCompanyLogo(companyId: string, logoUrl: string) {
+        return prisma.company.update({
+            where: { id: companyId },
+            data: { logoUrl },
+        });
+    }
 }

@@ -3,16 +3,41 @@ import { User, LogOut, FileText, Newspaper, UserCircle, BookOpen, PenLine } from
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
+// Helpers to read company branding stored at login
+const getCompanyName = () => localStorage.getItem("companyName") || "NetLink";
+const getCompanyLogo = () => localStorage.getItem("companyLogo") || "";
+
+const getUserDisplayName = () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return "My Account";
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.firstName ? `${payload.firstName} ${payload.lastName || ""}`.trim() : "My Account";
+  } catch {
+    return "My Account";
+  }
+};
+
 export const AppHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const companyName = getCompanyName();
+  const companyLogo = getCompanyLogo();
+  const displayName = getUserDisplayName();
 
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-card/80 backdrop-blur-xl border-b border-border flex items-center justify-between px-4">
-        <h1 className="font-heading font-bold text-lg text-foreground tracking-tight">
-          Net<span className="text-primary">Link</span>
-        </h1>
+        {/* Dynamic Company Branding */}
+        <div className="flex items-center gap-2">
+          {companyLogo ? (
+            <img src={companyLogo.startsWith('/uploads/') ? `${import.meta.env.VITE_API_URL || ''}${companyLogo}` : companyLogo} alt={companyName} className="h-8 w-auto max-w-[120px] object-contain" />
+          ) : (
+            <h1 className="font-heading font-bold text-lg text-foreground tracking-tight">
+              {companyName}
+            </h1>
+          )}
+        </div>
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center transition-colors hover:bg-primary/20"
@@ -40,8 +65,8 @@ export const AppHeader = () => {
               style={{ boxShadow: "var(--shadow-elevated)" }}
             >
               <div className="px-3 py-2.5 border-b border-border mb-1">
-                <p className="font-heading font-semibold text-sm text-foreground">Alex Johnson</p>
-                <p className="text-xs text-muted-foreground">Product Designer</p>
+                <p className="font-heading font-semibold text-sm text-foreground">{displayName}</p>
+                <p className="text-xs text-muted-foreground">{companyName}</p>
               </div>
               <button
                 onClick={() => { setMenuOpen(false); navigate("/my-profile"); }}
@@ -86,7 +111,14 @@ export const AppHeader = () => {
                 <FileText className="w-4 h-4 text-muted-foreground" />
                 Terms & Conditions
               </a>
-              <button className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-destructive hover:bg-destructive/10 transition-colors w-full text-left">
+              <button
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-destructive hover:bg-destructive/10 transition-colors w-full text-left"
+                onClick={() => {
+                  setMenuOpen(false);
+                  localStorage.clear();
+                  window.location.href = "/login";
+                }}
+              >
                 <LogOut className="w-4 h-4" />
                 Log out
               </button>

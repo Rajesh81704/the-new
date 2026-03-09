@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AdminController } from '../controllers/AdminController';
 import { asyncErrorWrapper } from '../utils/asyncErrorWrapper';
+import { upload } from '../middleware/upload';
 
 const router = Router();
 const adminController = new AdminController();
@@ -21,5 +22,7 @@ router.post('/blogs', asyncErrorWrapper((req, res) => adminController.createBlog
 
 router.get('/members', asyncErrorWrapper((req, res) => adminController.getMembers(req, res) as any));
 router.get('/stats', asyncErrorWrapper((req, res) => adminController.getDashboardStats(req, res) as any));
+
+router.post('/settings/logo', upload.single('logo'), asyncErrorWrapper((req, res) => adminController.uploadLogo(req, res) as any));
 
 export default router;

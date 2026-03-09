@@ -17,7 +17,12 @@ import superAdminRoutes from './routes/superAdminRoutes';
 app.use('/api/auth', authRoutes);
 app.use('/api/feed', postRoutes);
 app.use('/api/admin', adminRoutes);
+import path from 'path';
+
 app.use('/api/super-admin', superAdminRoutes);
+
+// Serve persistent uploads
+app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
 
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok' });

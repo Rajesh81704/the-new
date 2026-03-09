@@ -43,9 +43,10 @@ export class AuthService {
     }
 
     async login(data: any) {
-        let user;
+        let user: any;
+        let company: any = null;
         if (data.companyCode) {
-            const company = await prisma.company.findUnique({
+            company = await prisma.company.findUnique({
                 where: { companyCode: data.companyCode }
             });
             if (!company) {
@@ -79,7 +80,11 @@ export class AuthService {
 
         const { passwordHash, ...userWithoutPassword } = user;
 
-        return { user: userWithoutPassword, token };
+        return {
+            user: userWithoutPassword,
+            token,
+            company: company ? { name: company.name, logoUrl: company.logoUrl } : null
+        };
     }
 
     async forgotPassword(data: any) {

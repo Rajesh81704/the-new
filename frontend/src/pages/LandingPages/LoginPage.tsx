@@ -35,6 +35,15 @@ export default function LoginPage() {
 
             if (res.data?.data?.token) {
                 localStorage.setItem("token", res.data.data.token);
+                // Store company branding for the header
+                const company = res.data.data.company;
+                if (company) {
+                    localStorage.setItem("companyName", company.name || "");
+                    localStorage.setItem("companyLogo", company.logoUrl || "");
+                } else {
+                    localStorage.removeItem("companyName");
+                    localStorage.removeItem("companyLogo");
+                }
 
                 // determine redirect based on subdomain
                 if (isSuperAdmin) {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,9 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Globe, CreditCard, CheckCircle2, AlertCircle, Copy, XCircle, ExternalLink, IndianRupee, FileText } from "lucide-react";
+import { Globe, CreditCard, CheckCircle2, AlertCircle, Copy, XCircle, ExternalLink, IndianRupee, FileText, Paintbrush, Upload, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import api from "@/lib/api";
 
 const PAYMENT_GATEWAYS = [
   { id: "razorpay", name: "Razorpay", description: "India's leading payment gateway", fields: ["Key ID", "Key Secret"], icon: "₹" },
@@ -28,6 +29,38 @@ interface GatewayConfig {
 export default function AdminSettings() {
   const [baseDomain, setBaseDomain] = useState("connectpro.in");
   const [gateways, setGateways] = useState<Record<string, GatewayConfig>>({});
+  const [logoPreview, setLogoPreview] = useState<string>(localStorage.getItem("companyLogo") || "");
+  const [logoUploading, setLogoUploading] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoPreview(URL.createObjectURL(file));
+  };
+
+  const handleLogoUpload = async () => {
+    const file = logoInputRef.current?.files?.[0];
+    if (!file) { toast.error("Please select an image first"); return; }
+    try {
+      setLogoUploading(true);
+      const formData = new FormData();
+      formData.append("logo", file);
+      const res = await api.post("/admin/settings/logo", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      const newLogoUrl = res.data?.data?.logoUrl;
+      if (newLogoUrl) {
+        localStorage.setItem("companyLogo", newLogoUrl);
+        setLogoPreview(newLogoUrl);
+        toast.success("Company logo updated! Refresh the page to see it in the header.");
+      }
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Upload failed");
+    } finally {
+      setLogoUploading(false);
+    }
+  };
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -111,12 +144,59 @@ export default function AdminSettings() {
         <p className="text-sm text-muted-foreground mt-1">Configure your platform domain and integrations</p>
       </div>
 
-      <Tabs defaultValue="domains" className="w-full">
+      <Tabs defaultValue="branding" className="w-full">
         <TabsList className="mb-4">
+          <TabsTrigger value="branding" className="gap-2"><Paintbrush className="w-4 h-4" /> Branding</TabsTrigger>
           <TabsTrigger value="domains" className="gap-2"><Globe className="w-4 h-4" /> Domain Settings</TabsTrigger>
           <TabsTrigger value="payments" className="gap-2"><IndianRupee className="w-4 h-4" /> Payment Gateways</TabsTrigger>
           <TabsTrigger value="invoices" className="gap-2"><FileText className="w-4 h-4" /> Invoices</TabsTrigger>
         </TabsList>
+
+        {/* BRANDING TAB */}
+        <TabsContent value="branding" className="space-y-4">
+          <Card className="shadow-sm border-0">
+            <CardHeader className="bg-gradient-to-r from-primary/10 to-transparent border-b border-border pb-4">
+              <CardTitle className="text-lg font-heading flex items-center gap-2">
+                <Paintbrush className="w-5 h-5 text-primary" /> Brand Settings
+              </CardTitle>
+              <CardDescription>Upload your company logo. It will appear in the top navigation bar for all your users.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="flex flex-col sm:flex-row gap-8 items-start">
+                {/* Preview */}
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-32 h-32 rounded-2xl border-2 border-dashed border-border bg-muted/30 flex items-center justify-center overflow-hidden">
+                    {logoPreview ? (
+                      <img src={logoPreview.startsWith('/uploads/') ? `${import.meta.env.VITE_API_URL || ''}${logoPreview}` : logoPreview} alt="Logo Preview" className="w-full h-full object-contain p-2" />
+                    ) : (
+                      <ImageIcon className="w-12 h-12 text-muted-foreground/40" />
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Logo Preview</p>
+                </div>
+
+                {/* Upload controls */}
+                <div className="flex-1 space-y-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Select Logo Image</Label>
+                    <Input
+                      ref={logoInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoFileChange}
+                      className="cursor-pointer h-auto py-2"
+                    />
+                    <p className="text-xs text-muted-foreground">Recommended: PNG or SVG with transparent background. Max 5MB.</p>
+                  </div>
+                  <Button onClick={handleLogoUpload} disabled={logoUploading} className="gap-2">
+                    <Upload className="w-4 h-4" />
+                    {logoUploading ? "Uploading..." : "Upload & Save Logo"}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="domains" className="space-y-4">
           <Card className="shadow-sm border-0">
