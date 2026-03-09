@@ -26,4 +26,8 @@ jobs:
           script: |
             export APP_DIR=/var/www/the-new
             export BRANCH=main
+            cd "$APP_DIR"
+            git fetch --all --prune
+            git checkout "$BRANCH"
+            git reset --hard "origin/$BRANCH"
             bash "$APP_DIR/scripts/deploy.sh"
