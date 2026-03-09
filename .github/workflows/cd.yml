@@ -9,8 +9,19 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    services:
+      postgres:
+        image: postgres:latest
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: magicallysocial
+          POSTGRES_USER: magicallysocial_app
+          POSTGRES_PASSWORD: MagicallySocial2026
     steps:
+      - name: Set DATABASE_URL
+        run: echo "DATABASE_URL=postgres://magicallysocial_app:MagicallySocial2026@localhost:5432/magicallysocial" >> $GITHUB_ENV
+      
       - name: Checkout
         uses: actions/checkout@v4
 
