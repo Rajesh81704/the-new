@@ -2,17 +2,29 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Home, Users, Calendar, Search, Headphones } from "lucide-react";
 import { motion } from "framer-motion";
 
-const tabs = [
-  { path: "/", icon: Home, label: "Home" },
-  { path: "/friends", icon: Users, label: "Friends" },
-  { path: "/events", icon: Calendar, label: "Events" },
-  { path: "/members", icon: Search, label: "Members" },
-  { path: "/podcast", icon: Headphones, label: "Podcast" },
+const defaultTabs = [
+  { path: "/", id: "feed", icon: Home, label: "Home" }, // Home isn't a module, always kept
+  { path: "/friends", id: "friends", icon: Users, label: "Friends" },
+  { path: "/events", id: "events", icon: Calendar, label: "Events" },
+  { path: "/members", id: "members", icon: Search, label: "Members" },
+  { path: "/podcast", id: "podcasts", icon: Headphones, label: "Podcast" },
 ];
 
 export const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Retrieve modules array from local storage, default to all visible if missing
+  const storedModules = localStorage.getItem("companyModules");
+  let activeModules: string[] = [];
+  try {
+    activeModules = storedModules ? JSON.parse(storedModules) : ["friends", "events", "members", "podcasts"];
+  } catch (e) {
+    activeModules = ["friends", "events", "members", "podcasts"]; // fallback
+  }
+
+  // Filter tabs: always keep Home ("feed"), otherwise check if module is active
+  const tabs = defaultTabs.filter(tab => tab.id === "feed" || activeModules.includes(tab.id));
 
   return (
     <nav className="nav-bottom">
@@ -33,14 +45,12 @@ export const BottomNav = () => {
                 />
               )}
               <tab.icon
-                className={`w-5 h-5 transition-colors duration-150 ${
-                  isActive ? "text-primary" : "text-muted-foreground"
-                }`}
+                className={`w-5 h-5 transition-colors duration-150 ${isActive ? "text-primary" : "text-muted-foreground"
+                  }`}
               />
               <span
-                className={`text-[10px] font-medium transition-colors duration-150 ${
-                  isActive ? "text-primary" : "text-muted-foreground"
-                }`}
+                className={`text-[10px] font-medium transition-colors duration-150 ${isActive ? "text-primary" : "text-muted-foreground"
+                  }`}
               >
                 {tab.label}
               </span>

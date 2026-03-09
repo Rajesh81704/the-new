@@ -29,7 +29,31 @@ export const FeedCard = ({ avatar, name, role, content, image, likes, tag, index
     setLikeCount(liked ? likeCount - 1 : likeCount + 1);
   };
 
+  const avatarSrc = avatars[avatar];
+  const profile = memberProfiles[avatar];
+  const organizer = profile
+    ? {
+      initials: profile.initials,
+      name: profile.name,
+      role: `${profile.role}${profile.company ? ` at ${profile.company}` : ""}`,
+      isFriend: profile.isFriend,
+      phone: profile.personal.phone,
+      whatsapp: profile.social.whatsapp,
+    }
+    : {
+      initials: avatar,
+      name,
+      role,
+      isFriend: false,
+    };
+
   const handleInterested = () => {
+    if (!organizer.isFriend) {
+      toast.error(`You must be connected with ${name} to show interest.`);
+      setShowDialog(true);
+      return;
+    }
+
     if (!interested) {
       setInterested(true);
       setShowDialog(true);
@@ -37,24 +61,6 @@ export const FeedCard = ({ avatar, name, role, content, image, likes, tag, index
       setInterested(false);
     }
   };
-
-  const avatarSrc = avatars[avatar];
-  const profile = memberProfiles[avatar];
-  const organizer = profile
-    ? {
-        initials: profile.initials,
-        name: profile.name,
-        role: `${profile.role}${profile.company ? ` at ${profile.company}` : ""}`,
-        isFriend: profile.isFriend,
-        phone: profile.personal.phone,
-        whatsapp: profile.social.whatsapp,
-      }
-    : {
-        initials: avatar,
-        name,
-        role,
-        isFriend: false,
-      };
 
   return (
     <>
@@ -87,24 +93,23 @@ export const FeedCard = ({ avatar, name, role, content, image, likes, tag, index
           </div>
         )}
 
-      <div className="flex items-center gap-1 pt-2 border-t border-border">
-        <button
-          onClick={handleLike}
-          className={`btn-ghost flex items-center gap-1.5 ${liked ? "text-destructive" : ""}`}
-        >
-          <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
-          <span className="text-xs">{likeCount}</span>
-        </button>
-        <button
-          onClick={handleInterested}
-          className={`ml-auto rounded-xl px-4 py-2 text-xs font-bold transition-all duration-150 active:scale-95 flex items-center gap-1.5 ${
-            interested
+        <div className="flex items-center gap-1 pt-2 border-t border-border">
+          <button
+            onClick={handleLike}
+            className={`btn-ghost flex items-center gap-1.5 ${liked ? "text-destructive" : ""}`}
+          >
+            <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
+            <span className="text-xs">{likeCount}</span>
+          </button>
+          <button
+            onClick={handleInterested}
+            className={`ml-auto rounded-xl px-4 py-2 text-xs font-bold transition-all duration-150 active:scale-95 flex items-center gap-1.5 ${interested
               ? "bg-accent/15 text-accent border border-accent/25"
               : "bg-accent text-accent-foreground shadow-md"
-          }`}
-        >
-          <Star className={`w-3.5 h-3.5 ${interested ? "fill-current" : ""}`} />
-          {interested ? "Interested ✓" : "Interested"}
+              }`}
+          >
+            <Star className={`w-3.5 h-3.5 ${interested ? "fill-current" : ""}`} />
+            {interested ? "Interested ✓" : "Interested"}
           </button>
         </div>
       </motion.div>

@@ -30,6 +30,7 @@ model Company {
   subdomain          String?            @unique
   customDomain       String?            @unique
   logoUrl            String?
+  activeModules      String[]           @default([])
   subscriptionStatus SubscriptionStatus @default(ACTIVE)
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
@@ -64,8 +65,32 @@ model User {
 
   posts Post[]
 
+  sentFriendships     Friendship[] @relation("SentFriendships")
+  receivedFriendships Friendship[] @relation("ReceivedFriendships")
+
   @@unique([email, companyId])
   @@map("users")
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model Friendship {
+  id          String           @id @default(uuid())
+  requesterId String
+  receiverId  String
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  requester User @relation("SentFriendships", fields: [requesterId], references: [id])
+  receiver  User @relation("ReceivedFriendships", fields: [receiverId], references: [id])
+
+  @@unique([requesterId, receiverId])
+  @@map("friendships")
 }
 
 model Post {

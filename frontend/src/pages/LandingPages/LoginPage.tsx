@@ -69,9 +69,11 @@ export default function LoginPage() {
                 if (company) {
                     localStorage.setItem("companyName", company.name || "");
                     localStorage.setItem("companyLogo", company.logoUrl || "");
+                    localStorage.setItem("companyModules", JSON.stringify(company.activeModules || []));
                 } else {
                     localStorage.removeItem("companyName");
                     localStorage.removeItem("companyLogo");
+                    localStorage.removeItem("companyModules");
                 }
 
                 // determine redirect based on subdomain

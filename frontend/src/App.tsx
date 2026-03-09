@@ -43,6 +43,7 @@ import SuperAdminApplications from "./pages/super-admin/SuperAdminApplications";
 import CompanyLandingPage from "./pages/CompanyLandingPage";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ModuleGuard } from "@/components/ModuleGuard";
 import UserLandingPage from "./pages/LandingPages/UserLandingPage";
 import CompanyAdminLandingPage from "./pages/LandingPages/CompanyAdminLandingPage";
 import SuperAdminLandingPage from "./pages/LandingPages/SuperAdminLandingPage";
@@ -91,11 +92,11 @@ const AppRoutes = () => {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/members" element={<AdminMembers />} />
-          <Route path="/admin/events" element={<AdminEvents />} />
-          <Route path="/admin/podcasts" element={<AdminPodcasts />} />
-          <Route path="/admin/blogs" element={<AdminBlogs />} />
-          <Route path="/admin/resources" element={<AdminResources />} />
+          <Route path="/admin/members" element={<ModuleGuard moduleId="members"><AdminMembers /></ModuleGuard>} />
+          <Route path="/admin/events" element={<ModuleGuard moduleId="events"><AdminEvents /></ModuleGuard>} />
+          <Route path="/admin/podcasts" element={<ModuleGuard moduleId="podcasts"><AdminPodcasts /></ModuleGuard>} />
+          <Route path="/admin/blogs" element={<ModuleGuard moduleId="blogs"><AdminBlogs /></ModuleGuard>} />
+          <Route path="/admin/resources" element={<ModuleGuard moduleId="resources"><AdminResources /></ModuleGuard>} />
           <Route path="/admin/terms" element={<AdminTerms />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/admin/membership" element={<AdminMembership />} />
@@ -113,18 +114,18 @@ const AppRoutes = () => {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-          <Route path="/friends" element={<FriendsPage />} />
-          <Route path="/events" element={<EventsPage />} />
+          <Route path="/friends" element={<ModuleGuard moduleId="friends"><FriendsPage /></ModuleGuard>} />
+          <Route path="/events" element={<ModuleGuard moduleId="events"><EventsPage /></ModuleGuard>} />
           <Route path="/my-feed" element={<MyFeedPage />} />
-          <Route path="/members" element={<MembersPage />} />
-          <Route path="/podcast" element={<PodcastPage />} />
+          <Route path="/members" element={<ModuleGuard moduleId="members"><MembersPage /></ModuleGuard>} />
+          <Route path="/podcast" element={<ModuleGuard moduleId="podcasts"><PodcastPage /></ModuleGuard>} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/profile/:id" element={<ProfilePage />} />
           <Route path="/my-profile" element={<MyProfilePage />} />
           <Route path="/my-invoices" element={<MyInvoicesPage />} />
-          <Route path="/resources" element={<ResourcesPage />} />
-          <Route path="/blogs" element={<BlogsPage />} />
-          <Route path="/blogs/:slug" element={<BlogDetailPage />} />
+          <Route path="/resources" element={<ModuleGuard moduleId="resources"><ResourcesPage /></ModuleGuard>} />
+          <Route path="/blogs" element={<ModuleGuard moduleId="blogs"><BlogsPage /></ModuleGuard>} />
+          <Route path="/blogs/:slug" element={<ModuleGuard moduleId="blogs"><BlogDetailPage /></ModuleGuard>} />
           <Route path="/share-business" element={<ShareBusinessPage />} />
           {/* Default user landing logic if they login but hit an unhandled path */}
           <Route path="/home" element={<HomePage />} />

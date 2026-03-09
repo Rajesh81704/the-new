@@ -46,6 +46,21 @@ function AdminSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const storedModules = localStorage.getItem("companyModules");
+  let activeModules: string[] = [];
+  try {
+    activeModules = storedModules ? JSON.parse(storedModules) : ["friends", "events", "members", "podcasts", "blogs", "resources"];
+  } catch (e) {
+    activeModules = ["friends", "events", "members", "podcasts", "blogs", "resources"];
+  }
+
+  // Dashboard, Terms, Membership, and Settings are always visible
+  const visibleItems = adminItems.filter(item => {
+    const isCoreModule = ["/admin", "/admin/terms", "/admin/membership", "/admin/settings"].includes(item.url);
+    const isFeatureModule = activeModules.some(m => item.url.includes(m));
+    return isCoreModule || isFeatureModule;
+  });
+
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
       <SidebarContent>
@@ -63,7 +78,7 @@ function AdminSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {adminItems.map((item) => (
+              {visibleItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink

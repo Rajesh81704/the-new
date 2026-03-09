@@ -83,7 +83,7 @@ export class AuthService {
         return {
             user: userWithoutPassword,
             token,
-            company: company ? { name: company.name, logoUrl: company.logoUrl } : null
+            company: company ? { name: company.name, logoUrl: company.logoUrl, activeModules: company.activeModules } : null
         };
     }
 
