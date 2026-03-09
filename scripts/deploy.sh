@@ -33,6 +33,7 @@ cd "$APP_DIR/backend"
 npm ci
 npx prisma generate
 npx prisma db push
+node prisma/seed.js
 npm run build
 
 echo "[deploy] reloading backend process"
