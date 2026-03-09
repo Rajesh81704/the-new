@@ -55,8 +55,18 @@ export class AuthService {
             user = await prisma.user.findUnique({
                 where: { email_companyId: { email: data.email, companyId: company.id } },
             });
+        } else if (data.domain) {
+            company = await prisma.company.findUnique({
+                where: { customDomain: data.domain }
+            });
+            if (!company) {
+                throw new Error('Invalid custom domain or company not found');
+            }
+            user = await prisma.user.findUnique({
+                where: { email_companyId: { email: data.email, companyId: company.id } },
+            });
         } else {
-            // Assume super admin login attempts will omit companyCode
+            // Assume super admin login attempts will omit companyCode and customdomain
             user = await prisma.user.findFirst({
                 where: { email: data.email, role: 'SUPER_ADMIN' },
             });
@@ -92,6 +102,15 @@ export class AuthService {
         if (data.companyCode) {
             const company = await prisma.company.findUnique({
                 where: { companyCode: data.companyCode }
+            });
+            if (company) {
+                user = await prisma.user.findUnique({
+                    where: { email_companyId: { email: data.email, companyId: company.id } },
+                });
+            }
+        } else if (data.domain) {
+            const company = await prisma.company.findUnique({
+                where: { customDomain: data.domain }
             });
             if (company) {
                 user = await prisma.user.findUnique({

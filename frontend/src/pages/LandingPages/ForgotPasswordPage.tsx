@@ -16,10 +16,20 @@ export default function ForgotPasswordPage() {
 
     const hostname = window.location.hostname;
     const isSuperAdmin = hostname.startsWith("admin.");
+    const isCompanyAdmin = hostname.startsWith("company.");
+    const isCustomDomain = !(
+        hostname === "localhost" ||
+        hostname === "127.0.0.1" ||
+        hostname === "connectpro.in" ||
+        hostname === "www.connectpro.in" ||
+        isSuperAdmin ||
+        isCompanyAdmin ||
+        hostname.startsWith("user.")
+    );
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email || (!isSuperAdmin && !companyCode)) {
+        if (!email || (!isSuperAdmin && !isCustomDomain && !companyCode)) {
             toast.error("Please fill in all required fields");
             return;
         }
@@ -27,7 +37,9 @@ export default function ForgotPasswordPage() {
         try {
             setLoading(true);
             const payload: any = { email };
-            if (!isSuperAdmin) {
+            if (isCustomDomain) {
+                payload.domain = hostname;
+            } else if (!isSuperAdmin) {
                 payload.companyCode = companyCode;
             }
             await api.post("/auth/forgot-password", payload);
@@ -97,7 +109,7 @@ export default function ForgotPasswordPage() {
                                         </div>
                                     </div>
 
-                                    {!isSuperAdmin && (
+                                    {!isSuperAdmin && !isCustomDomain && (
                                         <div className="space-y-1.5">
                                             <Label htmlFor="companyCode" className="text-xs ml-1 text-muted-foreground uppercase tracking-wider font-semibold">Company ID</Label>
                                             <div className="relative">

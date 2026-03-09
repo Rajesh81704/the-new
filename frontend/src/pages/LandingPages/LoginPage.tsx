@@ -18,6 +18,15 @@ export default function LoginPage() {
     const hostname = window.location.hostname;
     const isSuperAdmin = hostname.startsWith("admin.");
     const isCompanyAdmin = hostname.startsWith("company.");
+    const isCustomDomain = !(
+        hostname === "localhost" ||
+        hostname === "127.0.0.1" ||
+        hostname === "connectpro.in" ||
+        hostname === "www.connectpro.in" ||
+        isSuperAdmin ||
+        isCompanyAdmin ||
+        hostname.startsWith("user.")
+    );
 
     // Contextual labels per subdomain role
     const loginContext = isSuperAdmin
@@ -38,18 +47,27 @@ export default function LoginPage() {
                 formTitle: "Company Admin Sign In",
                 formSubtitle: "Apni email, password, aur Company ID enter karein apne admin dashboard tak pahunchne ke liye.",
             }
-            : {
-                title: "Magically Super",
-                badge: "👤 Member Login Portal",
-                headline: "Your Professional Network",
-                tagline: "Yahaan aap kisi bhi company ke member ki tarah login kar sakte hain. Apna email, password, aur apni company ka unique Company ID enter karein.",
-                formTitle: "Member Sign In",
-                formSubtitle: "Apni company ka Company ID zaroor daalein — yahi aapko sahi network se jodega.",
-            };
+            : isCustomDomain
+                ? {
+                    title: "Welcome Back",
+                    badge: "👤 Secure Portal",
+                    headline: "Your Professional Network",
+                    tagline: "Sign in to access your customized network portal, feed, and resources.",
+                    formTitle: "Sign In",
+                    formSubtitle: "Enter your email and password to continue.",
+                }
+                : {
+                    title: "Magically Super",
+                    badge: "👤 Member Login Portal",
+                    headline: "Your Professional Network",
+                    tagline: "Yahaan aap kisi bhi company ke member ki tarah login kar sakte hain. Apna email, password, aur apni company ka unique Company ID enter karein.",
+                    formTitle: "Member Sign In",
+                    formSubtitle: "Apni company ka Company ID zaroor daalein — yahi aapko sahi network se jodega.",
+                };
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email || !password || (!isSuperAdmin && !companyCode)) {
+        if (!email || !password || (!isSuperAdmin && !isCustomDomain && !companyCode)) {
             toast.error("Please fill in all required fields");
             return;
         }
@@ -57,7 +75,9 @@ export default function LoginPage() {
         try {
             setLoading(true);
             const payload: any = { email, password };
-            if (!isSuperAdmin) {
+            if (isCustomDomain) {
+                payload.domain = hostname;
+            } else if (!isSuperAdmin) {
                 payload.companyCode = companyCode;
             }
             const res = await api.post("/auth/login", payload);
@@ -76,10 +96,11 @@ export default function LoginPage() {
                     localStorage.removeItem("companyModules");
                 }
 
-                // determine redirect based on subdomain
-                if (isSuperAdmin) {
+                // determine redirect based on subdomain and role
+                const userRole = res.data.data.user?.role;
+                if (isSuperAdmin || userRole === "SUPER_ADMIN") {
                     navigate("/super-admin");
-                } else if (hostname.startsWith("company.")) {
+                } else if (hostname.startsWith("company.") || userRole === "ADMIN") {
                     navigate("/admin");
                 } else {
                     navigate("/my-feed"); // fallback to user feed
@@ -185,7 +206,7 @@ export default function LoginPage() {
                                     </div>
                                 </div>
 
-                                {!isSuperAdmin && (
+                                {!isSuperAdmin && !isCustomDomain && (
                                     <div className="space-y-1.5">
                                         <Label htmlFor="companyCode" className="text-xs ml-1 text-muted-foreground uppercase tracking-wider font-semibold">Company ID</Label>
                                         <div className="relative">

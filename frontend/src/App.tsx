@@ -55,10 +55,21 @@ const queryClient = new QueryClient();
 
 const getAppVariant = () => {
   const hostname = window.location.hostname;
+
+  if (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "connectpro.in" ||
+    hostname === "www.connectpro.in"
+  ) {
+    return "main";
+  }
+
   if (hostname.startsWith("admin.")) return "superadmin";
   if (hostname.startsWith("company.")) return "companyadmin";
   if (hostname.startsWith("user.")) return "user";
-  return "main";
+
+  return "customdomain";
 };
 
 const AppRoutes = () => {
@@ -131,6 +142,50 @@ const AppRoutes = () => {
           <Route path="/home" element={<HomePage />} />
         </Route>
         {/* Public routes accessed by users without auth */}
+        <Route path="/card/:id" element={<PublicCardPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    );
+  }
+  if (variant === "customdomain") {
+    return (
+      <Routes>
+        <Route path="/" element={<UserLandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+        {/* Company Admin Routes mapped to /admin */}
+        <Route element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/members" element={<ModuleGuard moduleId="members"><AdminMembers /></ModuleGuard>} />
+          <Route path="/admin/events" element={<ModuleGuard moduleId="events"><AdminEvents /></ModuleGuard>} />
+          <Route path="/admin/podcasts" element={<ModuleGuard moduleId="podcasts"><AdminPodcasts /></ModuleGuard>} />
+          <Route path="/admin/blogs" element={<ModuleGuard moduleId="blogs"><AdminBlogs /></ModuleGuard>} />
+          <Route path="/admin/resources" element={<ModuleGuard moduleId="resources"><AdminResources /></ModuleGuard>} />
+          <Route path="/admin/terms" element={<AdminTerms />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/membership" element={<AdminMembership />} />
+        </Route>
+
+        {/* User Routes */}
+        <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+          <Route path="/friends" element={<ModuleGuard moduleId="friends"><FriendsPage /></ModuleGuard>} />
+          <Route path="/events" element={<ModuleGuard moduleId="events"><EventsPage /></ModuleGuard>} />
+          <Route path="/my-feed" element={<MyFeedPage />} />
+          <Route path="/members" element={<ModuleGuard moduleId="members"><MembersPage /></ModuleGuard>} />
+          <Route path="/podcast" element={<ModuleGuard moduleId="podcasts"><PodcastPage /></ModuleGuard>} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/profile/:id" element={<ProfilePage />} />
+          <Route path="/my-profile" element={<MyProfilePage />} />
+          <Route path="/my-invoices" element={<MyInvoicesPage />} />
+          <Route path="/resources" element={<ModuleGuard moduleId="resources"><ResourcesPage /></ModuleGuard>} />
+          <Route path="/blogs" element={<ModuleGuard moduleId="blogs"><BlogsPage /></ModuleGuard>} />
+          <Route path="/blogs/:slug" element={<ModuleGuard moduleId="blogs"><BlogDetailPage /></ModuleGuard>} />
+          <Route path="/share-business" element={<ShareBusinessPage />} />
+          <Route path="/home" element={<HomePage />} />
+        </Route>
+
         <Route path="/card/:id" element={<PublicCardPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
