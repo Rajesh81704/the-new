@@ -9,11 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-<<<<<<< Updated upstream
-
-=======
     
->>>>>>> Stashed changes
     steps:
       - name: Checkout
         uses: actions/checkout@v4
