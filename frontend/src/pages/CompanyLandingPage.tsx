@@ -72,7 +72,15 @@ export default function CompanyLandingPage() {
             <span className="font-heading font-bold text-foreground">Magically <span className="text-primary">Super</span></span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>Login</Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                window.location.href = "https://user.magicallysocial.cloud/login";
+              }}
+            >
+              Login
+            </Button>
             <Button size="sm" onClick={() => setApplyOpen(true)}>Apply Now</Button>
           </div>
         </div>

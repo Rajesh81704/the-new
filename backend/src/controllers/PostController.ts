@@ -12,8 +12,9 @@ export class PostController extends BaseController {
 
     async getFeed(req: Request, res: Response): Promise<void> {
         try {
-            // In reality, this will come from auth middleware setting req.user
-            const companyId = (req as any).user?.companyId || 'default-company-id';
+            const companyId =
+                (req as any).user?.companyId ||
+                (await this.postService.getDefaultCompanyId());
             const page = parseInt(req.query.page as string) || 1;
 
             const feed = await this.postService.getFeed(companyId, page);
@@ -25,8 +26,12 @@ export class PostController extends BaseController {
 
     async createPost(req: Request, res: Response): Promise<void> {
         try {
-            const companyId = (req as any).user?.companyId || 'default-company-id';
-            const authorId = (req as any).user?.userId || 'default-user-id';
+            const companyId =
+                (req as any).user?.companyId ||
+                (await this.postService.getDefaultCompanyId());
+            const authorId =
+                (req as any).user?.userId ||
+                (await this.postService.getDefaultAuthorId(companyId));
             const { content, mediaUrl } = req.body;
 
             if (!content) {

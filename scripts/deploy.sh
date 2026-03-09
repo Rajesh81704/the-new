@@ -32,6 +32,7 @@ echo "[deploy] building backend"
 cd "$APP_DIR/backend"
 npm ci
 npx prisma generate
+npx prisma db push
 npm run build
 
 echo "[deploy] reloading backend process"

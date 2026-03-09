@@ -1,6 +1,46 @@
 import { prisma } from '../utils/prisma';
 
 export class PostService {
+    async getDefaultCompanyId(): Promise<string> {
+        let company = await prisma.company.findFirst({ orderBy: { createdAt: 'asc' } });
+
+        if (!company) {
+            company = await prisma.company.create({
+                data: {
+                    name: 'Magically Social',
+                    subdomain: 'magicallysocial',
+                    customDomain: 'magicallysocial.cloud',
+                },
+            });
+        }
+
+        return company.id;
+    }
+
+    async getDefaultAuthorId(companyId: string): Promise<string> {
+        const existingUser = await prisma.user.findFirst({
+            where: { companyId },
+            orderBy: { createdAt: 'asc' },
+        });
+
+        if (existingUser) {
+            return existingUser.id;
+        }
+
+        const fallbackUser = await prisma.user.create({
+            data: {
+                email: `member-${Date.now()}@magicallysocial.cloud`,
+                passwordHash: 'placeholder',
+                role: 'MEMBER',
+                firstName: 'Demo',
+                lastName: 'User',
+                companyId,
+            },
+        });
+
+        return fallbackUser.id;
+    }
+
     async getFeed(companyId: string, page = 1, limit = 10) {
         const skip = (page - 1) * limit;
 

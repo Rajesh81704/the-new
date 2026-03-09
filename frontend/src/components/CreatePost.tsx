@@ -28,18 +28,23 @@ export const CreatePost = () => {
     }
   };
 
-  const handlePost = () => {
+  const handlePost = async () => {
     if (!text.trim() && !imagePreview && !youtubeId) return;
-    addPost({
-      content: text.trim(),
-      image: imagePreview || undefined,
-      youtubeUrl: youtubeId ? youtubeUrl : undefined,
-    });
-    setText("");
-    setImagePreview(null);
-    setYoutubeUrl("");
-    setShowYoutubeInput(false);
-    toast.success("Post published!");
+    try {
+      await addPost({
+        content: text.trim(),
+        image: imagePreview || undefined,
+        youtubeUrl: youtubeId ? youtubeUrl : undefined,
+      });
+
+      setText("");
+      setImagePreview(null);
+      setYoutubeUrl("");
+      setShowYoutubeInput(false);
+      toast.success("Post published!");
+    } catch (error) {
+      toast.error("Could not publish post");
+    }
   };
 
   const clearImage = () => {

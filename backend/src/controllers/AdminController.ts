@@ -12,7 +12,9 @@ export class AdminController extends BaseController {
 
     async getEvents(req: Request, res: Response): Promise<void> {
         try {
-            const companyId = (req as any).user?.companyId || 'default-company-id';
+            const companyId =
+                (req as any).user?.companyId ||
+                (await this.adminService.getDefaultCompanyId());
             const events = await this.adminService.getEvents(companyId);
             this.handleSuccess(res, events);
         } catch (error) {
@@ -22,7 +24,9 @@ export class AdminController extends BaseController {
 
     async createEvent(req: Request, res: Response): Promise<void> {
         try {
-            const companyId = (req as any).user?.companyId || 'default-company-id';
+            const companyId =
+                (req as any).user?.companyId ||
+                (await this.adminService.getDefaultCompanyId());
             const { title, description, eventDate, location } = req.body;
             const event = await this.adminService.createEvent(companyId, {
                 title,
@@ -38,7 +42,9 @@ export class AdminController extends BaseController {
 
     async getBlogs(req: Request, res: Response): Promise<void> {
         try {
-            const companyId = (req as any).user?.companyId || 'default-company-id';
+            const companyId =
+                (req as any).user?.companyId ||
+                (await this.adminService.getDefaultCompanyId());
             const blogs = await this.adminService.getBlogs(companyId);
             this.handleSuccess(res, blogs);
         } catch (error) {
@@ -48,7 +54,9 @@ export class AdminController extends BaseController {
 
     async createBlog(req: Request, res: Response): Promise<void> {
         try {
-            const companyId = (req as any).user?.companyId || 'default-company-id';
+            const companyId =
+                (req as any).user?.companyId ||
+                (await this.adminService.getDefaultCompanyId());
             const { title, description, content, status } = req.body;
             const blog = await this.adminService.createBlog(companyId, {
                 title,

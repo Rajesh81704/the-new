@@ -2,6 +2,22 @@ import { prisma } from '../utils/prisma';
 import { ContentStatus } from '@prisma/client';
 
 export class AdminService {
+    async getDefaultCompanyId(): Promise<string> {
+        let company = await prisma.company.findFirst({ orderBy: { createdAt: 'asc' } });
+
+        if (!company) {
+            company = await prisma.company.create({
+                data: {
+                    name: 'Magically Social',
+                    subdomain: 'magicallysocial',
+                    customDomain: 'magicallysocial.cloud',
+                },
+            });
+        }
+
+        return company.id;
+    }
+
     async getEvents(companyId: string) {
         return prisma.event.findMany({
             where: { companyId },

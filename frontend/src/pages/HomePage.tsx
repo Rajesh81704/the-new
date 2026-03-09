@@ -1,17 +1,9 @@
-import { FeedCard } from "@/components/FeedCard";
 import { CreatePost } from "@/components/CreatePost";
 import { usePosts } from "@/lib/postsContext";
 import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
-import feedFunding from "@/assets/feed-funding.jpg";
-import feedPodcast from "@/assets/feed-podcast.jpg";
-import feedSummit from "@/assets/feed-summit.jpg";
-import { useState, useEffect } from "react";
-import api from "@/lib/api";
+import { useState } from "react";
 
-// Assuming UserPost format from postsContext
-// We will still display context ones along with backend if we want,
-// but let's fetch backend posts and render them.
 const getYoutubeId = (url: string) => {
   const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?\s]{11})/);
   return match ? match[1] : null;
@@ -83,43 +75,32 @@ function timeAgo(date: Date) {
 }
 
 const HomePage = () => {
-  const { posts: contextPosts } = usePosts();
-  const [backendPosts, setBackendPosts] = useState<any[]>([]);
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const res = await api.get("/feed");
-        if (res.data?.data) {
-          setBackendPosts(res.data.data.map((p: any) => ({
-            ...p,
-            likes: 0,
-            timestamp: new Date(p.createdAt)
-          })));
-        }
-      } catch (error) {
-        console.error("Error loading posts", error);
-      }
-    };
-    fetchPosts();
-  }, []);
-
-  const allPosts = [...contextPosts, ...backendPosts];
+  const { posts, loading } = usePosts();
 
   return (
     <div className="min-h-screen bg-section-teal/40">
-      <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
-        <div className="mb-2">
-          <h2 className="font-heading font-bold text-xl text-foreground">Feed</h2>
-          <p className="text-sm text-muted-foreground">Stay updated with your network</p>
-        </div>
-
-        <CreatePost />
-
-        {allPosts.map((post, i) => (
-          <UserPostCard key={post.id || i} post={post} index={i} />
-        ))}
+    <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
+      <div className="mb-2">
+        <h2 className="font-heading font-bold text-xl text-foreground">Feed</h2>
+        <p className="text-sm text-muted-foreground">Stay updated with your network</p>
       </div>
+
+      <CreatePost />
+
+      {loading && (
+        <div className="card-interactive p-4 text-sm text-muted-foreground">Loading feed...</div>
+      )}
+
+      {!loading && posts.length === 0 && (
+        <div className="card-interactive p-4 text-sm text-muted-foreground">
+          No posts yet. Create the first one.
+        </div>
+      )}
+
+      {posts.map((post, i) => (
+        <UserPostCard key={post.id} post={post} index={i} />
+      ))}
+    </div>
     </div>
   );
 };
