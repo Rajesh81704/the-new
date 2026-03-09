@@ -51,7 +51,7 @@ npx prisma generate
 
 echo "[deploy] preparing companies.companyCode for existing rows"
 PSQL_DATABASE_URL="$(printf '%s' "$DATABASE_URL" | sed -E 's/([?&])schema=[^&]*(&?)/\1\2/g; s/\?&/\?/g; s/&&/&/g; s/[?&]$//')"
-psql "$PSQL_DATABASE_URL" <<'SQL'
+psql "$PSQL_DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
 ALTER TABLE "companies"
 ADD COLUMN IF NOT EXISTS "companyCode" TEXT;
 
@@ -64,6 +64,47 @@ ALTER COLUMN "companyCode" SET NOT NULL;
 
 CREATE UNIQUE INDEX IF NOT EXISTS "companies_companyCode_key"
 ON "companies"("companyCode");
+
+CREATE TEMP TABLE _user_dupes AS
+WITH ranked AS (
+  SELECT
+    "id",
+    "companyId",
+    "email",
+    FIRST_VALUE("id") OVER (
+      PARTITION BY "email", "companyId"
+      ORDER BY "createdAt" ASC, "id" ASC
+    ) AS keep_id,
+    ROW_NUMBER() OVER (
+      PARTITION BY "email", "companyId"
+      ORDER BY "createdAt" ASC, "id" ASC
+    ) AS rn
+  FROM "users"
+  WHERE "companyId" IS NOT NULL
+)
+SELECT "id", keep_id
+FROM ranked
+WHERE rn > 1;
+
+UPDATE "posts" p
+SET "authorId" = d.keep_id
+FROM _user_dupes d
+WHERE p."authorId" = d."id";
+
+DO $$
+BEGIN
+  IF to_regclass('public.friendships') IS NOT NULL THEN
+    DELETE FROM "friendships"
+    WHERE "requesterId" IN (SELECT "id" FROM _user_dupes)
+       OR "receiverId" IN (SELECT "id" FROM _user_dupes);
+  END IF;
+END $$;
+
+DELETE FROM "users" u
+USING _user_dupes d
+WHERE u."id" = d."id";
+
+DROP TABLE _user_dupes;
 SQL
 
 npx prisma db push
