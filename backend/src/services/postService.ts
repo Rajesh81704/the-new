@@ -10,6 +10,7 @@ export class PostService {
                     name: 'Magically Social',
                     subdomain: 'magicallysocial',
                     customDomain: 'magicallysocial.cloud',
+                    companyCode: 'MAGICALLY_SOCIAL', // <-- Add this line
                 },
             });
         }

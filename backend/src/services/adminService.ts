@@ -11,6 +11,7 @@ export class AdminService {
                     name: 'Magically Social',
                     subdomain: 'magicallysocial',
                     customDomain: 'magicallysocial.cloud',
+                    companyCode: 'MAGICALLY_SOCIAL', // <-- Add this line
                 },
             });
         }
