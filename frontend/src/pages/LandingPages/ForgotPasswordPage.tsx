@@ -15,7 +15,7 @@ export default function ForgotPasswordPage() {
     const [submitted, setSubmitted] = useState(false);
 
     const hostname = window.location.hostname;
-    const isSuperAdmin = hostname.startsWith("admin.");
+    const isSuperAdmin = hostname.startsWith("admin.") || hostname.startsWith("superadmin.");
     const isCompanyAdmin = hostname.startsWith("company.");
     const isCustomDomain = !(
         hostname === "localhost" ||

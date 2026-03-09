@@ -65,7 +65,7 @@ const getAppVariant = () => {
     return "main";
   }
 
-  if (hostname.startsWith("admin.")) return "superadmin";
+  if (hostname.startsWith("admin.") || hostname.startsWith("superadmin.")) return "superadmin";
   if (hostname.startsWith("company.")) return "companyadmin";
   if (hostname.startsWith("user.")) return "user";
 

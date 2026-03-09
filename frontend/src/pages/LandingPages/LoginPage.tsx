@@ -16,7 +16,7 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
 
     const hostname = window.location.hostname;
-    const isSuperAdmin = hostname.startsWith("admin.");
+    const isSuperAdmin = hostname.startsWith("admin.") || hostname.startsWith("superadmin.");
     const isCompanyAdmin = hostname.startsWith("company.");
     const isCustomDomain = !(
         hostname === "localhost" ||
