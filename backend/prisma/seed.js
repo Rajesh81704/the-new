@@ -27,7 +27,12 @@ async function main() {
   });
 
   await prisma.user.upsert({
-    where: { email: 'admin@magicallysocial.com' },
+    where: {
+      email_companyId: {
+        email: 'admin@magicallysocial.com',
+        companyId: company.id,
+      },
+    },
     update: {
       role: Role.SUPER_ADMIN,
       companyId: company.id,
@@ -46,7 +51,12 @@ async function main() {
   });
 
   const superAdmin = await prisma.user.upsert({
-    where: { email: 'superadmin@magicallysocial.cloud' },
+    where: {
+      email_companyId: {
+        email: 'superadmin@magicallysocial.cloud',
+        companyId: company.id,
+      },
+    },
     update: {
       role: Role.SUPER_ADMIN,
       companyId: company.id,
@@ -65,7 +75,12 @@ async function main() {
   });
 
   const member = await prisma.user.upsert({
-    where: { email: 'member@magicallysocial.cloud' },
+    where: {
+      email_companyId: {
+        email: 'member@magicallysocial.cloud',
+        companyId: company.id,
+      },
+    },
     update: {
       role: Role.MEMBER,
       companyId: company.id,
