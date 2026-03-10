@@ -72,8 +72,29 @@ const getAppVariant = () => {
   return "customdomain";
 };
 
+import { useEffect } from "react";
+
 const AppRoutes = () => {
   const variant = getAppVariant();
+
+  useEffect(() => {
+    // Magic link / Impersonation handling across subdomains
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    if (token) {
+      localStorage.setItem("token", token);
+
+      // Also potentially store any passed company modules
+      const modules = params.get("modules");
+      if (modules) localStorage.setItem("companyModules", atob(modules));
+
+      const companyName = params.get("companyName");
+      if (companyName) localStorage.setItem("companyName", atob(companyName));
+
+      // Strip params cleanly
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   if (variant === "superadmin") {
     return (

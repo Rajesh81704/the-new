@@ -22,8 +22,8 @@ export class SuperAdminController extends BaseController {
 
     async createCompany(req: Request, res: Response): Promise<void> {
         try {
-            const { name, subdomain, customDomain } = req.body;
-            const company = await this.superAdminService.createCompany({ name, subdomain, customDomain });
+            const { name, subdomain, customDomain, adminEmail, adminPassword } = req.body;
+            const company = await this.superAdminService.createCompany({ name, subdomain, customDomain, adminEmail, adminPassword });
             this.handleSuccess(res, company, 201);
         } catch (error) {
             this.handleError(error, res, 'SuperAdminController.createCompany');

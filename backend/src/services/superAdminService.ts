@@ -16,7 +16,7 @@ export class SuperAdminService {
         });
     }
 
-    async createCompany(data: { name: string; subdomain?: string; customDomain?: string }) {
+    async createCompany(data: { name: string; subdomain?: string; customDomain?: string; adminEmail?: string; adminPassword?: string }) {
         let baseCode = data.name.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() + new Date().getFullYear();
         let companyCode = baseCode;
 
@@ -33,8 +33,11 @@ export class SuperAdminService {
             }
         }
 
-        const tempPassword = await bcrypt.hash('Admin@123', 10);
-        const adminEmail = `admin@${companyCode.toLowerCase()}.com`;
+        const tempPassword = data.adminPassword
+            ? await bcrypt.hash(data.adminPassword, 10)
+            : await bcrypt.hash('Admin@123', 10);
+
+        const adminEmail = data.adminEmail || `admin@${companyCode.toLowerCase()}.com`;
 
         return prisma.$transaction(async (tx) => {
             const company = await tx.company.create({

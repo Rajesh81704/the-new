@@ -100,11 +100,13 @@ export default function SuperAdminCompanies() {
   const [formMaxMembers, setFormMaxMembers] = useState("");
   const [formPackageId, setFormPackageId] = useState("");
   const [formModules, setFormModules] = useState<string[]>([]);
+  const [formAdminEmail, setFormAdminEmail] = useState("");
+  const [formAdminPassword, setFormAdminPassword] = useState("");
 
   const selectedPackage = allPackages.find(p => p.id === formPackageId);
 
   const resetForm = () => {
-    setFormName(""); setFormMaxMembers(""); setFormPackageId(""); setFormModules([]); setEditingCompany(null);
+    setFormName(""); setFormMaxMembers(""); setFormPackageId(""); setFormModules([]); setFormAdminEmail(""); setFormAdminPassword(""); setEditingCompany(null);
   };
 
   const openCreate = () => { resetForm(); setDialogOpen(true); };
@@ -136,9 +138,14 @@ export default function SuperAdminCompanies() {
         });
         toast.success("Company updated successfully");
       } else {
+        if (!formAdminEmail || !formAdminPassword) {
+          toast.error("Please provide admin email and password"); return;
+        }
         await api.post("/super-admin/companies", {
           name: formName,
           subdomain,
+          adminEmail: formAdminEmail,
+          adminPassword: formAdminPassword
         });
         toast.success("Company created successfully");
       }
@@ -166,16 +173,42 @@ export default function SuperAdminCompanies() {
     toast.success("Company deleted");
   };
 
-  const loginAsAdmin = async (adminId: string) => {
+  const loginAsAdmin = async (company: Company) => {
+    if (!company.adminId) {
+      toast.error("No admin user found for this company");
+      return;
+    }
+
     try {
-      const res = await api.post('/auth/impersonate', { targetUserId: adminId });
-      const { token, company } = res.data.data;
-      localStorage.setItem("token", token);
-      if (company?.activeModules) {
-        localStorage.setItem("companyModules", JSON.stringify(company.activeModules));
+      const res = await api.post('/auth/impersonate', { targetUserId: company.adminId });
+      const { token, company: companyDetails } = res.data.data;
+
+      const protocol = window.location.protocol;
+      let baseHost = window.location.hostname.replace(/^(superadmin\.|admin\.)/, '');
+
+      // Allow for dev localhost
+      if (baseHost === 'localhost') baseHost = 'localhost:5173';
+
+      // Target the company sub domain
+      let targetHost = `company.${baseHost}`;
+      if (company.domain && !baseHost.includes("localhost")) {
+        targetHost = company.domain;
       }
-      toast.success("Logged in as Company Admin!");
-      window.location.href = "/admin";
+
+      // Prepare URL params to pass full state securely
+      const url = new URL(`${protocol}//${targetHost}/admin`);
+      url.searchParams.set("token", token);
+
+      if (companyDetails?.activeModules) {
+        url.searchParams.set("modules", btoa(JSON.stringify(companyDetails.activeModules)));
+      }
+      if (companyDetails?.name) {
+        url.searchParams.set("companyName", btoa(companyDetails.name));
+      }
+
+      toast.success("Opening Company Admin Panel...");
+      window.open(url.toString(), '_blank');
+
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Failed to impersonate");
     }
@@ -222,6 +255,19 @@ export default function SuperAdminCompanies() {
                   <Input type="number" value={formMaxMembers} onChange={e => setFormMaxMembers(e.target.value)} placeholder="e.g. 500" />
                 </div>
               </div>
+
+              {!editingCompany && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Admin Email *</Label>
+                    <Input type="email" value={formAdminEmail} onChange={e => setFormAdminEmail(e.target.value)} placeholder="admin@company.com" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Admin Password *</Label>
+                    <Input type="password" value={formAdminPassword} onChange={e => setFormAdminPassword(e.target.value)} placeholder="Secure password" />
+                  </div>
+                </div>
+              )}
 
               {/* Payment Package Picker */}
               <div className="space-y-2">
@@ -408,7 +454,7 @@ export default function SuperAdminCompanies() {
 
                       {/* Right: Actions */}
                       <div className="flex sm:flex-col items-center gap-2 shrink-0">
-                        <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => navigate("/admin")}>
+                        <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => loginAsAdmin(c)}>
                           <LogIn className="w-3.5 h-3.5" /> Enter Panel
                         </Button>
                         <DropdownMenu>
@@ -418,7 +464,7 @@ export default function SuperAdminCompanies() {
                           <DropdownMenuContent align="end">
                             {c.adminId && (
                               <>
-                                <DropdownMenuItem onClick={() => loginAsAdmin(c.adminId!)}>Login As Admin</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => loginAsAdmin(c)}>Login As Admin</DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => resetAdminPassword(c.adminId!)}>Reset Admin Password</DropdownMenuItem>
                               </>
                             )}
