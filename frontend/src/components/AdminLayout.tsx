@@ -1,4 +1,5 @@
 import { Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -112,18 +113,55 @@ function AdminSidebar() {
 }
 
 export const AdminLayout = () => {
+  const [isImpersonating, setIsImpersonating] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (localStorage.getItem("superAdminToken")) {
+      setIsImpersonating(true);
+    }
+  }, []);
+
+  const handleExitImpersonation = () => {
+    const rootToken = localStorage.getItem("superAdminToken");
+    if (rootToken) {
+      localStorage.setItem("token", rootToken);
+      localStorage.removeItem("superAdminToken");
+      localStorage.removeItem("companyModules");
+      localStorage.removeItem("companyName");
+      setIsImpersonating(false);
+      navigate("/super-admin/companies");
+    }
+  };
+
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
-        <AdminSidebar />
-        <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-14 flex items-center border-b border-border px-4 bg-card/50 backdrop-blur-sm sticky top-0 z-30">
-            <SidebarTrigger className="mr-3" />
-            <h2 className="font-heading font-semibold text-sm text-foreground">Admin Panel</h2>
-          </header>
-          <main className="flex-1 p-6 overflow-auto">
-            <Outlet />
-          </main>
+      <div className="min-h-screen flex flex-col w-full bg-background">
+        {isImpersonating && (
+          <div className="w-full bg-destructive text-destructive-foreground px-4 py-2 flex items-center justify-between z-50 shadow-md">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              <span className="text-sm font-semibold">Super Admin Impersonation Mode</span>
+            </div>
+            <button
+              onClick={handleExitImpersonation}
+              className="text-xs font-bold bg-white/20 hover:bg-white/30 px-3 py-1 rounded-md transition-colors flex items-center gap-1"
+            >
+              <ArrowLeft className="w-3 h-3" /> Exit to Super Admin
+            </button>
+          </div>
+        )}
+        <div className="flex flex-1 w-full relative">
+          <AdminSidebar />
+          <div className="flex-1 flex flex-col min-w-0">
+            <header className="h-14 flex items-center border-b border-border px-4 bg-card/50 backdrop-blur-sm sticky top-0 z-30">
+              <SidebarTrigger className="mr-3" />
+              <h2 className="font-heading font-semibold text-sm text-foreground">Admin Panel</h2>
+            </header>
+            <main className="flex-1 p-6 overflow-auto">
+              <Outlet />
+            </main>
+          </div>
         </div>
       </div>
     </SidebarProvider>

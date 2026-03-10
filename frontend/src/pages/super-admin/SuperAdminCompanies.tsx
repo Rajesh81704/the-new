@@ -183,31 +183,23 @@ export default function SuperAdminCompanies() {
       const res = await api.post('/auth/impersonate', { targetUserId: company.adminId });
       const { token, company: companyDetails } = res.data.data;
 
-      const protocol = window.location.protocol;
-      let baseHost = window.location.hostname.replace(/^(superadmin\.|admin\.)/, '');
-
-      // Allow for dev localhost
-      if (baseHost === 'localhost') baseHost = 'localhost:5173';
-
-      // Target the company sub domain
-      let targetHost = `company.${baseHost}`;
-      if (company.domain && !baseHost.includes("localhost")) {
-        targetHost = company.domain;
+      // Store current super admin token to restore later
+      const currentToken = localStorage.getItem("token");
+      if (currentToken) {
+        localStorage.setItem("superAdminToken", currentToken);
       }
 
-      // Prepare URL params to pass full state securely
-      const url = new URL(`${protocol}//${targetHost}/admin`);
-      url.searchParams.set("token", token);
-
+      // Set new company admin token
+      localStorage.setItem("token", token);
       if (companyDetails?.activeModules) {
-        url.searchParams.set("modules", btoa(JSON.stringify(companyDetails.activeModules)));
+        localStorage.setItem("companyModules", JSON.stringify(companyDetails.activeModules));
       }
       if (companyDetails?.name) {
-        url.searchParams.set("companyName", btoa(companyDetails.name));
+        localStorage.setItem("companyName", companyDetails.name);
       }
 
-      toast.success("Opening Company Admin Panel...");
-      window.open(url.toString(), '_blank');
+      toast.success("Impersonating Company Admin");
+      navigate("/admin");
 
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Failed to impersonate");

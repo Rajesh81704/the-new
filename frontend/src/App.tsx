@@ -111,6 +111,20 @@ const AppRoutes = () => {
           <Route path="/super-admin/settings" element={<SuperAdminSettings />} />
           <Route path="/super-admin/applications" element={<SuperAdminApplications />} />
         </Route>
+
+        {/* Company Admin Routes (for inline Super Admin Impersonation) */}
+        <Route element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/members" element={<ModuleGuard moduleId="members"><AdminMembers /></ModuleGuard>} />
+          <Route path="/admin/events" element={<ModuleGuard moduleId="events"><AdminEvents /></ModuleGuard>} />
+          <Route path="/admin/podcasts" element={<ModuleGuard moduleId="podcasts"><AdminPodcasts /></ModuleGuard>} />
+          <Route path="/admin/blogs" element={<ModuleGuard moduleId="blogs"><AdminBlogs /></ModuleGuard>} />
+          <Route path="/admin/resources" element={<ModuleGuard moduleId="resources"><AdminResources /></ModuleGuard>} />
+          <Route path="/admin/terms" element={<AdminTerms />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/membership" element={<AdminMembership />} />
+        </Route>
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     );

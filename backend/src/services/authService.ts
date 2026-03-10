@@ -77,11 +77,13 @@ export class AuthService {
                 where: { companyCode: data.companyCode }
             });
             if (!company) {
+                console.error(`Login Failed: Invalid company code '${data.companyCode}'`);
                 throw new Error('Invalid company code');
             }
-            user = await prisma.user.findUnique({
-                where: { email_companyId: { email: data.email, companyId: company.id } },
+            user = await prisma.user.findFirst({
+                where: { email: { equals: data.email, mode: 'insensitive' }, companyId: company.id },
             });
+            if (!user) console.error(`Login Failed: User '${data.email}' not found under companyCode '${data.companyCode}'`);
         } else if (data.domain) {
             company = await prisma.company.findUnique({
                 where: { customDomain: data.domain }
@@ -89,8 +91,8 @@ export class AuthService {
             if (!company) {
                 throw new Error('Invalid custom domain or company not found');
             }
-            user = await prisma.user.findUnique({
-                where: { email_companyId: { email: data.email, companyId: company.id } },
+            user = await prisma.user.findFirst({
+                where: { email: { equals: data.email, mode: 'insensitive' }, companyId: company.id },
             });
         } else if (data.subdomain) {
             company = await prisma.company.findUnique({
@@ -99,8 +101,8 @@ export class AuthService {
             if (!company) {
                 throw new Error('Company not found for this subdomain');
             }
-            user = await prisma.user.findUnique({
-                where: { email_companyId: { email: data.email, companyId: company.id } },
+            user = await prisma.user.findFirst({
+                where: { email: { equals: data.email, mode: 'insensitive' }, companyId: company.id },
             });
         } else {
             user = null;
@@ -113,6 +115,7 @@ export class AuthService {
         const isMatch = await bcrypt.compare(data.password, user.passwordHash);
 
         if (!isMatch) {
+            console.error(`Login Failed: Password mismatch for user '${user.email}'`);
             throw new Error('Invalid credentials');
         }
 
