@@ -83,6 +83,7 @@ const AppRoutes = () => {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route element={<ProtectedRoute><SuperAdminLayout /></ProtectedRoute>}>
+          <Route path="/admin" element={<SuperAdminDashboard />} />
           <Route path="/super-admin" element={<SuperAdminDashboard />} />
           <Route path="/super-admin/companies" element={<SuperAdminCompanies />} />
           <Route path="/super-admin/billing" element={<SuperAdminBilling />} />

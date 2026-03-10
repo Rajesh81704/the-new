@@ -98,10 +98,12 @@ export default function LoginPage() {
 
                 // determine redirect based on subdomain and role
                 const userRole = res.data.data.user?.role;
-                if (isSuperAdmin || userRole === "SUPER_ADMIN") {
-                    navigate("/super-admin");
-                } else if (hostname.startsWith("company.") || userRole === "ADMIN") {
-                    navigate("/admin");
+                if (userRole === "SUPER_ADMIN") {
+                    window.location.href = `${window.location.protocol}//superadmin.magicallysocial.cloud/super-admin`;
+                } else if (userRole === "ADMIN") {
+                    window.location.href = `${window.location.protocol}//company.magicallysocial.cloud/admin`;
+                } else if (hostname.startsWith("company.")) {
+                    window.location.href = `${window.location.protocol}//company.magicallysocial.cloud/admin`;
                 } else {
                     navigate("/my-feed"); // fallback to user feed
                 }

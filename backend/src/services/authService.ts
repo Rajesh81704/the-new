@@ -45,6 +45,33 @@ export class AuthService {
     async login(data: any) {
         let user: any;
         let company: any = null;
+
+        // Super admins should be able to log in without any tenant context.
+        // If credentials match a super admin account, we return early regardless
+        // of companyCode/domain provided by the client.
+        const superAdminCandidate = await prisma.user.findFirst({
+            where: { email: data.email, role: 'SUPER_ADMIN' },
+        });
+
+        if (superAdminCandidate) {
+            const superAdminPasswordMatch = await bcrypt.compare(data.password, superAdminCandidate.passwordHash);
+            if (superAdminPasswordMatch) {
+                const token = jwt.sign(
+                    { userId: superAdminCandidate.id, role: superAdminCandidate.role, companyId: superAdminCandidate.companyId },
+                    unifiedConfig.auth.jwtSecret as jwt.Secret,
+                    { expiresIn: unifiedConfig.auth.jwtExpiresIn as any }
+                );
+
+                const { passwordHash, ...userWithoutPassword } = superAdminCandidate;
+
+                return {
+                    user: userWithoutPassword,
+                    token,
+                    company: null,
+                };
+            }
+        }
+
         if (data.companyCode) {
             company = await prisma.company.findUnique({
                 where: { companyCode: data.companyCode }
@@ -66,10 +93,7 @@ export class AuthService {
                 where: { email_companyId: { email: data.email, companyId: company.id } },
             });
         } else {
-            // Assume super admin login attempts will omit companyCode and customdomain
-            user = await prisma.user.findFirst({
-                where: { email: data.email, role: 'SUPER_ADMIN' },
-            });
+            user = null;
         }
 
         if (!user) {
