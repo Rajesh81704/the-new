@@ -47,6 +47,7 @@ export class SuperAdminService {
                     subdomain: data.subdomain,
                     customDomain: data.customDomain,
                     subscriptionStatus: 'ACTIVE',
+                    activeModules: ["friends", "events", "members", "podcasts", "blogs", "resources"],
                 },
             });
 
