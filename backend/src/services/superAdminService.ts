@@ -1,5 +1,6 @@
 import { prisma } from '../utils/prisma';
-import { SubscriptionStatus } from '@prisma/client';
+import { Role, SubscriptionStatus } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 export class SuperAdminService {
     async getCompanies() {
@@ -32,13 +33,40 @@ export class SuperAdminService {
             }
         }
 
-        return prisma.company.create({
-            data: {
-                name: data.name,
-                companyCode,
-                subdomain: data.subdomain,
-                customDomain: data.customDomain,
-            },
+        const tempPassword = await bcrypt.hash('Admin@123', 10);
+        const adminEmail = `admin@${companyCode.toLowerCase()}.com`;
+
+        return prisma.$transaction(async (tx) => {
+            const company = await tx.company.create({
+                data: {
+                    name: data.name,
+                    companyCode,
+                    subdomain: data.subdomain,
+                    customDomain: data.customDomain,
+                    subscriptionStatus: 'ACTIVE',
+                },
+            });
+
+            await tx.subscription.create({
+                data: {
+                    companyId: company.id,
+                    planName: 'Generated Plan', // We'll let the update subscription endpoint handle the actual plan details if provided later
+                    expiresAt: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+                }
+            });
+
+            await tx.user.create({
+                data: {
+                    email: adminEmail,
+                    passwordHash: tempPassword,
+                    role: Role.ADMIN,
+                    firstName: 'Company',
+                    lastName: 'Admin',
+                    companyId: company.id,
+                }
+            });
+
+            return company;
         });
     }
 

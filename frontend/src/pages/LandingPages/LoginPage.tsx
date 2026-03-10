@@ -18,6 +18,10 @@ export default function LoginPage() {
     const hostname = window.location.hostname;
     const isSuperAdmin = hostname.startsWith("admin.") || hostname.startsWith("superadmin.");
     const isCompanyAdmin = hostname.startsWith("company.");
+    // Extract the subdomain portion for company.* domains (e.g. company.magicallysocial.cloud → magicallysocial)
+    const companySubdomain = isCompanyAdmin
+        ? hostname.replace(/^company\./, "").split(".")[0]
+        : "";
     const isCustomDomain = !(
         hostname === "localhost" ||
         hostname === "127.0.0.1" ||
@@ -77,6 +81,9 @@ export default function LoginPage() {
             const payload: any = { email, password };
             if (isCustomDomain) {
                 payload.domain = hostname;
+            } else if (isCompanyAdmin) {
+                // Automatically send subdomain from hostname — no manual company code needed
+                payload.subdomain = companySubdomain;
             } else if (!isSuperAdmin) {
                 payload.companyCode = companyCode;
             }

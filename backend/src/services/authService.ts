@@ -92,6 +92,16 @@ export class AuthService {
             user = await prisma.user.findUnique({
                 where: { email_companyId: { email: data.email, companyId: company.id } },
             });
+        } else if (data.subdomain) {
+            company = await prisma.company.findUnique({
+                where: { subdomain: data.subdomain }
+            });
+            if (!company) {
+                throw new Error('Company not found for this subdomain');
+            }
+            user = await prisma.user.findUnique({
+                where: { email_companyId: { email: data.email, companyId: company.id } },
+            });
         } else {
             user = null;
         }

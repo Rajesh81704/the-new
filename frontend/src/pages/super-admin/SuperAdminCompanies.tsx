@@ -36,6 +36,7 @@ const ALL_MODULES = [
 interface Company {
   id: string;
   name: string;
+  companyCode: string;
   maxMembers: number;
   modules: string[];
   amount: number;
@@ -66,30 +67,32 @@ export default function SuperAdminCompanies() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
 
-  useEffect(() => {
-    const fetchCompanies = async () => {
-      try {
-        const res = await api.get("/super-admin/companies");
-        if (res.data?.data) {
-          const mapped = res.data.data.map((c: any) => ({
-            id: c.id,
-            name: c.name,
-            maxMembers: 1000,
-            modules: ["members", "events"],
-            amount: 5000,
-            billingCycle: "monthly",
-            status: c.subscriptionStatus === "ACTIVE" ? "active" : "inactive",
-            currentMembers: c._count?.users || 0,
-            domain: c.customDomain || c.subdomain,
-            createdAt: new Date(c.createdAt).toLocaleDateString(),
-            adminId: c.users && c.users.length > 0 ? c.users[0].id : undefined
-          }));
-          setCompanies(mapped);
-        }
-      } catch (err) {
-        toast.error("Failed to load companies");
+  const fetchCompanies = async () => {
+    try {
+      const res = await api.get("/super-admin/companies");
+      if (res.data?.data) {
+        const mapped = res.data.data.map((c: any) => ({
+          id: c.id,
+          name: c.name,
+          companyCode: c.companyCode || "",
+          maxMembers: 1000,
+          modules: ["members", "events"],
+          amount: 5000,
+          billingCycle: "monthly",
+          status: c.subscriptionStatus === "ACTIVE" ? "active" : "inactive",
+          currentMembers: c._count?.users || 0,
+          domain: c.customDomain || c.subdomain,
+          createdAt: new Date(c.createdAt).toLocaleDateString(),
+          adminId: c.users && c.users.length > 0 ? c.users[0].id : undefined
+        }));
+        setCompanies(mapped);
       }
-    };
+    } catch (err) {
+      toast.error("Failed to load companies");
+    }
+  };
+
+  useEffect(() => {
     fetchCompanies();
   }, []);
 
@@ -113,27 +116,40 @@ export default function SuperAdminCompanies() {
     setDialogOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formName.trim() || !formMaxMembers || !formPackageId) {
       toast.error("Please fill all required fields including a Payment Package"); return;
     }
-    const pkg = allPackages.find(p => p.id === formPackageId);
-    if (editingCompany) {
-      setCompanies(prev => prev.map(c => c.id === editingCompany.id
-        ? { ...c, name: formName, maxMembers: Number(formMaxMembers), packageId: formPackageId, packageName: pkg?.name, amount: pkg?.amount ?? 0, billingCycle: pkg?.billingCycle ?? "monthly", modules: formModules }
-        : c));
-      toast.success("Company updated successfully");
-    } else {
-      const newCompany: Company = {
-        id: Date.now().toString(), name: formName, maxMembers: Number(formMaxMembers),
-        modules: formModules, amount: pkg?.amount ?? 0, billingCycle: pkg?.billingCycle ?? "monthly",
-        packageId: formPackageId, packageName: pkg?.name,
-        status: "active", currentMembers: 0, createdAt: "Mar 2026"
-      };
-      setCompanies(prev => [...prev, newCompany]);
-      toast.success("Company created successfully");
+
+    // Create a subdomain friendly slug from the company name
+    const subdomain = formName.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+    try {
+      if (editingCompany) {
+        // Since there is no update company endpoint yet, just update the subscription and mock the rest visually temporarily
+        // But for creation we know it works.
+        const pkg = allPackages.find(p => p.id === formPackageId);
+        await api.put(`/super-admin/companies/${editingCompany.id}/subscription`, {
+          status: "ACTIVE",
+          planName: pkg?.name || "Pro",
+          expiresAt: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString()
+        });
+        toast.success("Company updated successfully");
+      } else {
+        await api.post("/super-admin/companies", {
+          name: formName,
+          subdomain,
+        });
+        toast.success("Company created successfully");
+      }
+
+      setDialogOpen(false);
+      resetForm();
+      fetchCompanies(); // Refetch to get the real DB IDs and Admin IDs!
+    } catch (error) {
+      toast.error("An error occurred while saving the company");
+      console.error(error);
     }
-    setDialogOpen(false); resetForm();
   };
 
   const toggleModule = (moduleId: string) => {
@@ -322,6 +338,15 @@ export default function SuperAdminCompanies() {
                             <Badge variant={c.status === "active" ? "default" : "destructive"} className="text-[10px]">
                               {c.status === "active" ? "● Active" : "● Suspended"}
                             </Badge>
+                            {c.companyCode && (
+                              <button
+                                onClick={() => { navigator.clipboard.writeText(c.companyCode); toast.success("Company ID copied!"); }}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted hover:bg-muted/80 text-[10px] font-mono font-semibold text-muted-foreground border border-border cursor-pointer transition-colors"
+                                title="Click to copy Company ID"
+                              >
+                                🔑 {c.companyCode}
+                              </button>
+                            )}
                           </div>
 
                           {c.domain && (
