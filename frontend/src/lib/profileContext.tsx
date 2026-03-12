@@ -1,7 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import api from "./api"; // assuming frontend/src/lib/api.ts exists or we can create one, wait let's use fetch with auth token
-// Wait, actually the app already has api.ts or we can use standard fetch with token from localStorage.
-// Let's use standard fetch wrapper if there isn't one, but let's check lib/api first.
+import { apiClient } from "./api";
 
 export interface MyProfile {
   id?: string;
@@ -77,44 +75,37 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
           return;
         }
 
-        const res = await fetch('http://localhost:5000/api/users/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && data.data) {
-            const user = data.data;
-            // Map backend user to MyProfile
-            setProfile({
-              id: user.id,
-              name: `${user.firstName} ${user.lastName}`.trim(),
-              role: user.role || "",
-              company: user.company?.name || "",
-              business: {
-                category: user.category || "",
-                phone: user.metadata?.businessPhone || "",
-                email: user.email || "",
-                website: user.website || "",
-                address: user.metadata?.businessAddress || "",
-                description: user.headline || "",
-              },
-              personal: {
-                city: user.city || "",
-                phone: user.metadata?.personalPhone || "",
-                email: user.email || "",
-                dob: user.metadata?.dob || "",
-              },
-              social: {
-                linkedin: user.metadata?.linkedin || "",
-                twitter: user.metadata?.twitter || "",
-                instagram: user.metadata?.instagram || "",
-                whatsapp: user.metadata?.whatsapp || "",
-              }
-            });
-          }
+        const res = await apiClient.get('/user/me');
+        const data = res.data;
+
+        if (data.success && data.data) {
+          const user = data.data;
+          setProfile({
+            id: user.id,
+            name: `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim(),
+            role: user.role || "",
+            company: user.company?.name || "",
+            business: {
+              category: user.category || "",
+              phone: user.metadata?.businessPhone || "",
+              email: user.email || "",
+              website: user.website || "",
+              address: user.metadata?.businessAddress || "",
+              description: user.headline || "",
+            },
+            personal: {
+              city: user.city || "",
+              phone: user.metadata?.personalPhone || "",
+              email: user.email || "",
+              dob: user.metadata?.dob || "",
+            },
+            social: {
+              linkedin: user.metadata?.linkedin || "",
+              twitter: user.metadata?.twitter || "",
+              instagram: user.metadata?.instagram || "",
+              whatsapp: user.metadata?.whatsapp || "",
+            }
+          });
         }
       } catch (error) {
         console.error("Failed to fetch profile", error);
@@ -134,35 +125,26 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
       const [firstName, ...lastNameParts] = newProfile.name.split(' ');
       const lastName = lastNameParts.join(' ');
 
-      const res = await fetch('http://localhost:5000/api/users/profile', {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          headline: newProfile.business.description,
-          city: newProfile.personal.city,
-          category: newProfile.business.category,
-          website: newProfile.business.website,
-          metadata: {
-            businessPhone: newProfile.business.phone,
-            businessAddress: newProfile.business.address,
-            personalPhone: newProfile.personal.phone,
-            dob: newProfile.personal.dob,
-            linkedin: newProfile.social.linkedin,
-            twitter: newProfile.social.twitter,
-            instagram: newProfile.social.instagram,
-            whatsapp: newProfile.social.whatsapp,
-          }
-        })
+      await apiClient.put('/user/profile', {
+        firstName,
+        lastName,
+        headline: newProfile.business.description,
+        city: newProfile.personal.city,
+        category: newProfile.business.category,
+        website: newProfile.business.website,
+        metadata: {
+          businessPhone: newProfile.business.phone,
+          businessAddress: newProfile.business.address,
+          personalPhone: newProfile.personal.phone,
+          dob: newProfile.personal.dob,
+          linkedin: newProfile.social.linkedin,
+          twitter: newProfile.social.twitter,
+          instagram: newProfile.social.instagram,
+          whatsapp: newProfile.social.whatsapp,
+        }
       });
 
-      if (res.ok) {
-        setProfile(newProfile);
-      }
+      setProfile(newProfile);
     } catch (error) {
       console.error("Failed to update profile", error);
     }

@@ -63,15 +63,17 @@ const getAppVariant = () => {
     return "main";
   }
 
-  // Detect based on subdomain parts
-  if (parts.length >= 3) {
+  // Handle subdomains (both production and local .localhost)
+  const isLocalhostSubdomain = hostname.endsWith(".localhost") && parts.length >= 2;
+  const isProductionSubdomain = parts.length >= 3;
+
+  if (isLocalhostSubdomain || isProductionSubdomain) {
     const subdomain = parts[0].toLowerCase();
     if (subdomain === "admin" || subdomain === "superadmin") return "superadmin";
     if (subdomain === "company") return "companyadmin";
     if (subdomain === "user") return "user";
     
-    // If it's something like "mycommunity.yourdomain.com", we might want to treat it as "customdomain" 
-    // or handle it as a specific community portal. For now, following your logic:
+    // For custom company subdomains (e.g., magicallysocial.localhost or magicallysocial.connectpro.in)
     return "customdomain";
   }
 

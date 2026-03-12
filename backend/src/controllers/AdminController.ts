@@ -230,7 +230,7 @@ export class AdminController extends BaseController {
 
     async createMember(req: Request, res: Response): Promise<void> {
         try {
-            const companyId = (req as any).user?.companyId;
+            const companyId = (req as any).user?.companyId || await this.adminService.getDefaultCompanyId();
             if (!companyId) throw new Error("Unauthorized");
             const member = await this.adminService.createMember(companyId, req.body);
             this.handleSuccess(res, member, 201);
@@ -241,7 +241,7 @@ export class AdminController extends BaseController {
 
     async updateMember(req: Request, res: Response): Promise<void> {
         try {
-            const companyId = (req as any).user?.companyId;
+            const companyId = (req as any).user?.companyId || await this.adminService.getDefaultCompanyId();
             if (!companyId) throw new Error("Unauthorized");
             const id = req.params.id as string;
             const updated = await this.adminService.updateMember(companyId, id, req.body);
@@ -253,7 +253,7 @@ export class AdminController extends BaseController {
 
     async deleteMember(req: Request, res: Response): Promise<void> {
         try {
-            const companyId = (req as any).user?.companyId;
+            const companyId = (req as any).user?.companyId || await this.adminService.getDefaultCompanyId();
             if (!companyId) throw new Error("Unauthorized");
             const id = req.params.id as string;
             await this.adminService.deleteMember(companyId, id);

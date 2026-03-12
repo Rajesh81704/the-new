@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Image, Youtube, X, Send } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePosts } from "@/lib/postsContext";
+import { useMyProfile } from "@/lib/profileContext";
 import { toast } from "sonner";
 
 const getYoutubeId = (url: string) => {
@@ -11,6 +12,10 @@ const getYoutubeId = (url: string) => {
 
 export const CreatePost = () => {
   const { addPost } = usePosts();
+  const { profile } = useMyProfile();
+  const initials = profile.name
+    ? profile.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
+    : '?';
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [youtubeUrl, setYoutubeUrl] = useState("");
@@ -56,7 +61,7 @@ export const CreatePost = () => {
     <div className="card-interactive p-4 space-y-3">
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-heading font-bold text-sm shrink-0">
-          AJ
+          {initials}
         </div>
         <textarea
           value={text}

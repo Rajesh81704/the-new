@@ -18,6 +18,7 @@ export default function LoginPage() {
     const hostname = window.location.hostname;
     const isSuperAdmin = hostname.startsWith("admin.") || hostname.startsWith("superadmin.");
     const isCompanyAdmin = hostname.startsWith("company.");
+    const isUserSubdomain = hostname.startsWith("user.");
     const isCustomDomain = !(
         hostname === "localhost" ||
         hostname === "127.0.0.1" ||
@@ -25,7 +26,7 @@ export default function LoginPage() {
         hostname === "www.connectpro.in" ||
         isSuperAdmin ||
         isCompanyAdmin ||
-        hostname.startsWith("user.")
+        isUserSubdomain
     );
 
     // Contextual labels per subdomain role
@@ -56,18 +57,27 @@ export default function LoginPage() {
                     formTitle: "Sign In",
                     formSubtitle: "Enter your email and password to continue.",
                 }
-                : {
-                    title: "Magically Super",
-                    badge: "👤 Member Login Portal",
-                    headline: "Your Professional Network",
-                    tagline: "Yahaan aap kisi bhi company ke member ki tarah login kar sakte hain. Apna email, password, aur apni company ka unique Company ID enter karein.",
-                    formTitle: "Member Sign In",
-                    formSubtitle: "Apni company ka Company ID zaroor daalein — yahi aapko sahi network se jodega.",
-                };
+                : isUserSubdomain
+                    ? {
+                        title: "Welcome Back",
+                        badge: "👤 Member Portal",
+                        headline: "Your Professional Network",
+                        tagline: "Sign in with your email and password to access your network.",
+                        formTitle: "Member Sign In",
+                        formSubtitle: "Enter your email and password to continue.",
+                    }
+                    : {
+                        title: "Magically Super",
+                        badge: "👤 Member Login Portal",
+                        headline: "Your Professional Network",
+                        tagline: "Yahaan aap kisi bhi company ke member ki tarah login kar sakte hain. Apna email, password, aur apni company ka unique Company ID enter karein.",
+                        formTitle: "Member Sign In",
+                        formSubtitle: "Apni company ka Company ID zaroor daalein — yahi aapko sahi network se jodega.",
+                    };
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email || !password || (!isSuperAdmin && !isCustomDomain && !companyCode)) {
+        if (!email || !password || (!isSuperAdmin && !isCustomDomain && !isUserSubdomain && !companyCode)) {
             toast.error("Please fill in all required fields");
             return;
         }
@@ -77,6 +87,14 @@ export default function LoginPage() {
             const payload: any = { email, password };
             if (isCustomDomain) {
                 payload.domain = hostname;
+            } else if (isUserSubdomain) {
+                // Extract the company subdomain from user.SUBDOMAIN.domain
+                // e.g. user.magicallysocial.localhost -> subdomain = magicallysocial
+                const parts = hostname.split('.');
+                // parts[0] = 'user', parts[1] = company subdomain
+                if (parts.length >= 2) {
+                    payload.subdomain = parts[1];
+                }
             } else if (!isSuperAdmin) {
                 payload.companyCode = companyCode;
             }
@@ -245,7 +263,7 @@ export default function LoginPage() {
                                     </div>
                                 </div>
 
-                                {!isSuperAdmin && !isCustomDomain && (
+                                {!isSuperAdmin && !isCustomDomain && !isUserSubdomain && (
                                     <div className="space-y-1.5">
                                         <Label htmlFor="companyCode" className="text-xs ml-1 text-muted-foreground uppercase tracking-wider font-semibold">Company ID</Label>
                                         <div className="relative">
