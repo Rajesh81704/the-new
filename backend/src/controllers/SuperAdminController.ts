@@ -55,4 +55,24 @@ export class SuperAdminController extends BaseController {
             this.handleError(error, res, 'SuperAdminController.getDashboardStats');
         }
     }
+
+    async getApplications(req: Request, res: Response): Promise<void> {
+        try {
+            const applications = await this.superAdminService.getApplications();
+            this.handleSuccess(res, applications);
+        } catch (error) {
+            this.handleError(error, res, 'SuperAdminController.getApplications');
+        }
+    }
+
+    async updateApplicationStatus(req: Request, res: Response): Promise<void> {
+        try {
+            const applicationId = req.params.applicationId as string;
+            const { status } = req.body;
+            const application = await this.superAdminService.updateApplicationStatus(applicationId, status);
+            this.handleSuccess(res, application);
+        } catch (error) {
+            this.handleError(error, res, 'SuperAdminController.updateApplicationStatus');
+        }
+    }
 }

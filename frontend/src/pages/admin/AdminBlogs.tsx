@@ -25,52 +25,86 @@ const AdminBlogs = () => {
   const [editing, setEditing] = useState<Blog | null>(null);
   const [form, setForm] = useState(emptyBlog);
 
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        const res = await api.get("/admin/blogs");
-        if (res.data?.data) {
-          const mapped = res.data.data.map((b: any) => ({
-            id: b.id,
-            title: b.title,
-            excerpt: b.description || '',
-            content: b.content || '',
-            author: 'Admin',
-            tag: 'News',
-            published_at: new Date(b.createdAt).toLocaleDateString(),
-            is_published: b.status === "PUBLISHED"
-          }));
-          setBlogs(mapped);
-        }
-      } catch (err) {
-        toast.error("Failed to load blogs");
+  const fetchBlogs = async () => {
+    try {
+      const res = await api.get("/admin/blogs");
+      if (res.data?.data) {
+        const mapped = res.data.data.map((b: any) => ({
+          id: b.id,
+          title: b.title,
+          excerpt: b.description || '',
+          content: b.content || '',
+          author: 'Admin',
+          tag: 'News',
+          published_at: new Date(b.createdAt).toISOString().split('T')[0],
+          is_published: b.status === "PUBLISHED"
+        }));
+        setBlogs(mapped);
       }
-    };
+    } catch (err) {
+      toast.error("Failed to load blogs");
+    }
+  };
+
+  useEffect(() => {
     fetchBlogs();
   }, []);
 
   const openCreate = () => { setEditing(null); setForm(emptyBlog); setDialogOpen(true); };
   const openEdit = (b: Blog) => { setEditing(b); setForm(b); setDialogOpen(true); };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.title || !form.author) { toast.error("Title and author are required"); return; }
-    if (editing) {
-      setBlogs(prev => prev.map(b => b.id === editing.id ? { ...b, ...form } : b));
-      toast.success("Blog updated");
-    } else {
-      setBlogs(prev => [...prev, { ...form, id: Date.now().toString() }]);
-      toast.success("Blog created");
+
+    const payload = {
+      title: form.title,
+      description: form.excerpt,
+      content: form.content,
+      status: form.is_published ? "PUBLISHED" : "DRAFT"
+    };
+
+    try {
+      if (editing) {
+        await api.put(`/admin/blogs/${editing.id}`, payload);
+        toast.success("Blog updated");
+      } else {
+        await api.post("/admin/blogs", payload);
+        toast.success("Blog created");
+      }
+      setDialogOpen(false);
+      fetchBlogs();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to save blog");
     }
-    setDialogOpen(false);
   };
 
-  const togglePublish = (id: string) => {
-    setBlogs(prev => prev.map(b => b.id === id ? { ...b, is_published: !b.is_published } : b));
+  const togglePublish = async (id: string) => {
+    const blog = blogs.find(b => b.id === id);
+    if (!blog) return;
+
+    try {
+      await api.put(`/admin/blogs/${id}`, {
+        title: blog.title,
+        description: blog.excerpt,
+        content: blog.content,
+        status: blog.is_published ? "DRAFT" : "PUBLISHED"
+      });
+      toast.success(`Blog ${blog.is_published ? "unpublished" : "published"}`);
+      fetchBlogs();
+    } catch (err) {
+      toast.error("Failed to toggle publish status");
+    }
   };
 
-  const handleDelete = (id: string) => {
-    setBlogs(prev => prev.filter(b => b.id !== id));
-    toast.success("Blog deleted");
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this blog?")) return;
+    try {
+      await api.delete(`/admin/blogs/${id}`);
+      toast.success("Blog deleted");
+      fetchBlogs();
+    } catch (err) {
+      toast.error("Failed to delete blog");
+    }
   };
 
   return (

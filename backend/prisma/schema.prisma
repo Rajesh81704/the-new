@@ -4,6 +4,7 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+  engineType = "library"
 }
 
 enum SubscriptionStatus {
@@ -58,6 +59,10 @@ model User {
   avatarUrl        String?
   bio              String?
   headline         String?
+  city             String?
+  category         String?
+  website          String?
+  metadata         Json?     @default("{}")
   resetToken       String?
   resetTokenExpiry DateTime?
   createdAt        DateTime  @default(now())
@@ -67,6 +72,7 @@ model User {
 
   sentFriendships     Friendship[] @relation("SentFriendships")
   receivedFriendships Friendship[] @relation("ReceivedFriendships")
+  businessCards       BusinessCard[]
 
   @@unique([email, companyId])
   @@map("users")
@@ -86,8 +92,8 @@ model Friendship {
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
-  requester User @relation("SentFriendships", fields: [requesterId], references: [id])
-  receiver  User @relation("ReceivedFriendships", fields: [receiverId], references: [id])
+  requester User @relation("SentFriendships", fields: [requesterId], references: [id], onDelete: Cascade)
+  receiver  User @relation("ReceivedFriendships", fields: [receiverId], references: [id], onDelete: Cascade)
 
   @@unique([requesterId, receiverId])
   @@map("friendships")
@@ -174,4 +180,44 @@ model Subscription {
   updatedAt        DateTime @updatedAt
 
   @@map("subscriptions")
+}
+
+model BusinessCard {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  template    String   @default("modern")
+  name        String
+  role        String
+  company     String
+  phone       String?
+  email       String
+  website     String?
+  address     String?
+  description String?
+  imageUrl    String?
+  linkedin    String?
+  twitter     String?
+  instagram   String?
+  whatsapp    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("business_cards")
+}
+
+model CompanyApplication {
+  id              String   @id @default(uuid())
+  name            String
+  email           String
+  phone           String?
+  companyName     String
+  industry        String?
+  expectedMembers String?
+  message         String?
+  status          String   @default("pending") // pending, approved, rejected
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("company_applications")
 }

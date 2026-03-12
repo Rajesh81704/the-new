@@ -9,12 +9,18 @@ export abstract class BaseController {
     }
 
     protected handleError(error: unknown, res: Response, context?: string): void {
-        // In production, send to Sentry here.
         console.error(`Error in ${context || 'BaseController'}:`, error);
 
         const message = error instanceof Error ? error.message : 'An unexpected error occurred';
 
-        res.status(500).json({
+        let statusCode = 500;
+        if (message.includes('Invalid credentials') || message.includes('Unauthorized') || message.includes('Invalid company code')) {
+            statusCode = 401;
+        } else if (message.includes('already exists') || message.includes('not found')) {
+            statusCode = 400;
+        }
+
+        res.status(statusCode).json({
             success: false,
             message,
         });

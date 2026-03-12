@@ -110,4 +110,17 @@ export class SuperAdminService {
             recentCompanies: []
         };
     }
+
+    async getApplications() {
+        return prisma.companyApplication.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
+    }
+
+    async updateApplicationStatus(id: string, status: string) {
+        return prisma.companyApplication.update({
+            where: { id },
+            data: { status }
+        });
+    }
 }

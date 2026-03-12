@@ -1,15 +1,47 @@
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Briefcase, MapPin, Phone, Mail, Globe, Calendar, MessageCircle, ExternalLink, Lock } from "lucide-react";
 import { avatars } from "@/lib/avatars";
-import { memberProfiles } from "@/lib/memberData";
-import { useState } from "react";
+import { toast } from "sonner";
+import api from "@/lib/api";
 
 const ProfilePage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const profile = id ? memberProfiles[id] : null;
-  const [isConnected, setIsConnected] = useState(profile?.isFriend ?? false);
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [isConnected, setIsConnected] = useState(false);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!id) return;
+      try {
+        const res = await api.get(`/user/profile/${id}`);
+        setProfile(res.data?.data);
+        // connection status would ideally come from API, mock for now
+        // setIsConnected(res.data?.data?.isConnected); 
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [id]);
+
+  const toggleConnection = async () => {
+    try {
+      // Mock connection endpoint - would need connection records in schema
+      // await api.post(`/user/connect/${id}`);
+      setIsConnected(!isConnected);
+      toast.success(isConnected ? "Disconnected" : "Connection request sent");
+    } catch (err) {
+      toast.error("Failed to update connection");
+    }
+  };
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading profile...</div>;
 
   if (!profile) {
     return (
@@ -20,7 +52,12 @@ const ProfilePage = () => {
     );
   }
 
-  const avatarSrc = avatars[profile.initials];
+  const initials = profile ? ((profile.firstName?.[0] || "") + (profile.lastName?.[0] || "")).toUpperCase() : "U";
+  const avatarSrc = profile?.avatarUrl || avatars[initials];
+  const fullName = `${profile.firstName || ""} ${profile.lastName || ""}`.trim() || profile.email;
+  const business = profile.businessMetadata || {};
+  const personal = profile.personalMetadata || {};
+  const social = profile.socialMetadata || {};
 
   return (
     <div className="max-w-lg mx-auto px-4 py-4 space-y-4 pb-8">
@@ -216,12 +253,11 @@ const ProfilePage = () => {
         transition={{ delay: 0.32 }}
       >
         <button
-          onClick={() => setIsConnected(!isConnected)}
-          className={`w-full rounded-2xl py-3.5 font-heading font-semibold text-sm transition-all duration-150 active:scale-[0.98] ${
-            isConnected
-              ? "bg-destructive/10 text-destructive border border-destructive/20"
-              : "bg-primary text-primary-foreground"
-          }`}
+          onClick={toggleConnection}
+          className={`w-full rounded-2xl py-3.5 font-heading font-semibold text-sm transition-all duration-150 active:scale-[0.98] ${isConnected
+            ? "bg-destructive/10 text-destructive border border-destructive/20"
+            : "bg-primary text-primary-foreground"
+            }`}
         >
           {isConnected ? "Disconnect" : "Connect"}
         </button>

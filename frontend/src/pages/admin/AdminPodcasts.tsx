@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, MoreHorizontal, Headphones } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import api from "@/lib/api";
 
 interface Podcast {
   id: string; title: string; guest: string; description: string; duration: string; audio_url: string; published_at: string;
@@ -23,24 +24,66 @@ const AdminPodcasts = () => {
   const [editing, setEditing] = useState<Podcast | null>(null);
   const [form, setForm] = useState(emptyPodcast);
 
+  const fetchPodcasts = async () => {
+    try {
+      const res = await api.get("/admin/podcasts");
+      if (res.data?.data) {
+        const mapped = res.data.data.map((p: any) => ({
+          id: p.id,
+          title: p.title,
+          guest: 'Guest', // Not in generic schema, so omitting
+          description: p.description || '',
+          duration: 'TBD', // Schema lacks duration specifically
+          audio_url: p.url,
+          published_at: new Date(p.createdAt).toISOString().split('T')[0]
+        }));
+        setPodcasts(mapped);
+      }
+    } catch (err) {
+      toast.error("Failed to load podcasts");
+    }
+  };
+
+  useEffect(() => {
+    fetchPodcasts();
+  }, []);
+
   const openCreate = () => { setEditing(null); setForm(emptyPodcast); setDialogOpen(true); };
   const openEdit = (p: Podcast) => { setEditing(p); setForm(p); setDialogOpen(true); };
 
-  const handleSave = () => {
-    if (!form.title || !form.guest) { toast.error("Title and guest are required"); return; }
-    if (editing) {
-      setPodcasts(prev => prev.map(p => p.id === editing.id ? { ...p, ...form } : p));
-      toast.success("Podcast updated");
-    } else {
-      setPodcasts(prev => [...prev, { ...form, id: Date.now().toString() }]);
-      toast.success("Podcast added");
+  const handleSave = async () => {
+    if (!form.title) { toast.error("Title is required"); return; }
+
+    const payload = {
+      title: form.title,
+      description: form.description,
+      url: form.audio_url || "https://example.com"
+    };
+
+    try {
+      if (editing) {
+        await api.put(`/admin/podcasts/${editing.id}`, payload);
+        toast.success("Podcast updated");
+      } else {
+        await api.post("/admin/podcasts", payload);
+        toast.success("Podcast added");
+      }
+      setDialogOpen(false);
+      fetchPodcasts();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to save podcast");
     }
-    setDialogOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    setPodcasts(prev => prev.filter(p => p.id !== id));
-    toast.success("Podcast deleted");
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this podcast?")) return;
+    try {
+      await api.delete(`/admin/podcasts/${id}`);
+      toast.success("Podcast deleted");
+      fetchPodcasts();
+    } catch (err) {
+      toast.error("Failed to delete podcast");
+    }
   };
 
   return (

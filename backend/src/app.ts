@@ -13,13 +13,17 @@ import authRoutes from './routes/authRoutes';
 import postRoutes from './routes/postRoutes';
 import adminRoutes from './routes/adminRoutes';
 import superAdminRoutes from './routes/superAdminRoutes';
+import userRoutes from './routes/userRoutes';
+import publicRoutes from './routes/publicRoutes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/feed', postRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/user', userRoutes);
 import path from 'path';
 
 app.use('/api/super-admin', superAdminRoutes);
+app.use('/api/public', publicRoutes);
 
 // Serve persistent uploads
 app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));

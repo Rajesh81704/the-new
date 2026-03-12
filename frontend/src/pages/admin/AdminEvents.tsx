@@ -25,48 +25,70 @@ const AdminEvents = () => {
   const [editing, setEditing] = useState<Event | null>(null);
   const [form, setForm] = useState(emptyEvent);
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const res = await api.get("/admin/events");
-        if (res.data?.data) {
-          const mapped = res.data.data.map((e: any) => ({
-            id: e.id,
-            title: e.title,
-            date: new Date(e.eventDate).toLocaleDateString(),
-            time: new Date(e.eventDate).toLocaleTimeString(),
-            location: e.location || 'Online',
-            category: "General",
-            description: e.description || '',
-            image_url: ''
-          }));
-          setEvents(mapped);
-        }
-      } catch (err) {
-        toast.error("Failed to load events");
+  const fetchEvents = async () => {
+    try {
+      const res = await api.get("/admin/events");
+      if (res.data?.data) {
+        const mapped = res.data.data.map((e: any) => ({
+          id: e.id,
+          title: e.title,
+          date: new Date(e.eventDate).toISOString().split('T')[0],
+          time: new Date(e.eventDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          location: e.location || 'Online',
+          category: "General",
+          description: e.description || '',
+          image_url: ''
+        }));
+        setEvents(mapped);
       }
-    };
+    } catch (err) {
+      toast.error("Failed to load events");
+    }
+  };
+
+  useEffect(() => {
     fetchEvents();
   }, []);
 
   const openCreate = () => { setEditing(null); setForm(emptyEvent); setDialogOpen(true); };
   const openEdit = (e: Event) => { setEditing(e); setForm(e); setDialogOpen(true); };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.title || !form.date) { toast.error("Title and date are required"); return; }
-    if (editing) {
-      setEvents(prev => prev.map(e => e.id === editing.id ? { ...e, ...form } : e));
-      toast.success("Event updated");
-    } else {
-      setEvents(prev => [...prev, { ...form, id: Date.now().toString() }]);
-      toast.success("Event created");
+
+    // Convert local date and time back correctly to ISO
+    const eventDate = new Date(`${form.date}T${form.time || '12:00'}:00Z`).toISOString();
+    const payload = {
+      title: form.title,
+      description: form.description,
+      eventDate,
+      location: form.location
+    };
+
+    try {
+      if (editing) {
+        await api.put(`/admin/events/${editing.id}`, payload);
+        toast.success("Event updated");
+      } else {
+        await api.post("/admin/events", payload);
+        toast.success("Event created");
+      }
+      setDialogOpen(false);
+      fetchEvents();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to save event");
     }
-    setDialogOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    setEvents(prev => prev.filter(e => e.id !== id));
-    toast.success("Event deleted");
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this event?")) return;
+    try {
+      await api.delete(`/admin/events/${id}`);
+      toast.success("Event deleted");
+      fetchEvents();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to delete event");
+    }
   };
 
   return (

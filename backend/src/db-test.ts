@@ -1,5 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import { prisma } from './utils/prisma';
 
 async function run() {
   const users = await prisma.user.findMany({ take: 5, orderBy: { createdAt: 'desc' } });

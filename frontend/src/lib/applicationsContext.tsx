@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import apiClient from "./api";
+import { toast } from "sonner";
 
 export interface AdminApplication {
   id: string;
@@ -11,34 +13,78 @@ export interface AdminApplication {
   message: string;
   status: "pending" | "approved" | "rejected";
   appliedAt: string;
+  createdAt?: string; // from backend
+  updatedAt?: string;
 }
 
 interface ApplicationsContextType {
   applications: AdminApplication[];
-  addApplication: (app: Omit<AdminApplication, "id" | "status" | "appliedAt">) => void;
-  updateStatus: (id: string, status: "approved" | "rejected") => void;
+  addApplication: (app: Omit<AdminApplication, "id" | "status" | "appliedAt">) => Promise<void>;
+  updateStatus: (id: string, status: "approved" | "rejected") => Promise<void>;
+  fetchApplications: () => Promise<void>;
 }
 
 const ApplicationsContext = createContext<ApplicationsContextType | undefined>(undefined);
 
-const initialApps: AdminApplication[] = [];
-
 export const ApplicationsProvider = ({ children }: { children: ReactNode }) => {
-  const [applications, setApplications] = useState<AdminApplication[]>(initialApps);
+  const [applications, setApplications] = useState<AdminApplication[]>([]);
 
-  const addApplication = (app: Omit<AdminApplication, "id" | "status" | "appliedAt">) => {
-    setApplications((prev) => [
-      ...prev,
-      { ...app, id: Date.now().toString(), status: "pending", appliedAt: new Date().toISOString().split("T")[0] },
-    ]);
+  const fetchApplications = async () => {
+    try {
+      const response = await apiClient.get('/super-admin/applications');
+      if (response.data && response.data.data) {
+        const mapped = response.data.data.map((app: any) => ({
+          ...app,
+          appliedAt: app.createdAt || app.appliedAt || new Date().toISOString()
+        }));
+        setApplications(mapped);
+      }
+    } catch (error) {
+      console.error("Failed to fetch applications", error);
+    }
   };
 
-  const updateStatus = (id: string, status: "approved" | "rejected") => {
-    setApplications((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
+  useEffect(() => {
+    // Only fetch applications automatically if we might be a superadmin
+    if (window.location.hostname.startsWith("superadmin.") || window.location.pathname.startsWith("/super-admin") || window.location.pathname.startsWith("/superadmin")) {
+        fetchApplications();
+    }
+  }, []);
+
+  const addApplication = async (app: Omit<AdminApplication, "id" | "status" | "appliedAt">) => {
+    try {
+      const payload = {
+        name: app.name,
+        email: app.email,
+        phone: app.phone,
+        companyName: app.companyName,
+        industry: app.industry,
+        expectedMembers: app.expectedMembers,
+        message: app.message,
+      };
+      await apiClient.post('/public/company-application', payload);
+      // We don't necessarily need to fetch here since this is often done by public users
+    } catch (error) {
+      console.error("Failed to submit application", error);
+      throw error;
+    }
+  };
+
+  const updateStatus = async (id: string, status: "approved" | "rejected") => {
+    try {
+      // Backend expects /api/superadmin/applications/:id/status
+      await apiClient.put(`/super-admin/applications/${id}/status`, { status });
+      // Update local state optimistic
+      setApplications((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
+    } catch (error) {
+      console.error("Failed to update status", error);
+      toast.error("Failed to update status");
+      throw error;
+    }
   };
 
   return (
-    <ApplicationsContext.Provider value={{ applications, addApplication, updateStatus }}>
+    <ApplicationsContext.Provider value={{ applications, addApplication, updateStatus, fetchApplications }}>
       {children}
     </ApplicationsContext.Provider>
   );

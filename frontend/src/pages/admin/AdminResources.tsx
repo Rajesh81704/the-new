@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, MoreHorizontal, FileText, Video, Link2, Upload } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -7,8 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import api from "@/lib/api";
 
 interface Resource {
   id: string; title: string; description: string; type: "PDF" | "Video" | "Document" | "Link"; file_url: string; created_at: string;
@@ -27,24 +28,65 @@ const AdminResources = () => {
   const [editing, setEditing] = useState<Resource | null>(null);
   const [form, setForm] = useState(emptyResource);
 
+  const fetchResources = async () => {
+    try {
+      const res = await api.get("/admin/resources");
+      if (res.data?.data) {
+        const mapped = res.data.data.map((r: any) => ({
+          id: r.id,
+          title: r.title,
+          description: r.description || '',
+          type: r.url?.includes('drive.google.com') ? 'Link' : r.url?.endsWith('.pdf') ? 'PDF' : r.url?.match(/mp4|youtube|vimeo/i) ? 'Video' : 'Document',
+          file_url: r.url,
+          created_at: new Date(r.createdAt).toISOString().split('T')[0]
+        }));
+        setResources(mapped);
+      }
+    } catch (err) {
+      toast.error("Failed to load resources");
+    }
+  };
+
+  useEffect(() => {
+    fetchResources();
+  }, []);
+
   const openCreate = () => { setEditing(null); setForm(emptyResource); setDialogOpen(true); };
   const openEdit = (r: Resource) => { setEditing(r); setForm(r); setDialogOpen(true); };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.title) { toast.error("Title is required"); return; }
-    if (editing) {
-      setResources(prev => prev.map(r => r.id === editing.id ? { ...r, ...form } : r));
-      toast.success("Resource updated");
-    } else {
-      setResources(prev => [...prev, { ...form, id: Date.now().toString() }]);
-      toast.success("Resource added");
+
+    const payload = {
+      title: form.title,
+      description: form.description,
+      url: form.file_url || "https://example.com"
+    };
+
+    try {
+      if (editing) {
+        await api.put(`/admin/resources/${editing.id}`, payload);
+        toast.success("Resource updated");
+      } else {
+        await api.post("/admin/resources", payload);
+        toast.success("Resource added");
+      }
+      setDialogOpen(false);
+      fetchResources();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to save resource");
     }
-    setDialogOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    setResources(prev => prev.filter(r => r.id !== id));
-    toast.success("Resource deleted");
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this resource?")) return;
+    try {
+      await api.delete(`/admin/resources/${id}`);
+      toast.success("Resource deleted");
+      fetchResources();
+    } catch (err) {
+      toast.error("Failed to delete resource");
+    }
   };
 
   return (

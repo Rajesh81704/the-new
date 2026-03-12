@@ -98,14 +98,51 @@ export default function LoginPage() {
 
                 // determine redirect based on subdomain and role
                 const userRole = res.data.data.user?.role;
-                if (userRole === "SUPER_ADMIN") {
-                    window.location.href = `${window.location.protocol}//superadmin.magicallysocial.cloud/super-admin`;
-                } else if (userRole === "ADMIN") {
-                    window.location.href = `${window.location.protocol}//company.magicallysocial.cloud/admin`;
-                } else if (hostname.startsWith("company.")) {
-                    window.location.href = `${window.location.protocol}//company.magicallysocial.cloud/admin`;
+                const token = res.data.data.token;
+                const companyModules = res.data.data.company?.activeModules ? btoa(JSON.stringify(res.data.data.company.activeModules)) : '';
+                const companyName = res.data.data.company?.name ? btoa(res.data.data.company.name) : '';
+
+                // Identify base domain dynamically
+                let baseDomain = "connectpro.in";
+                if (hostname === "localhost" || hostname === "127.0.0.1") {
+                    baseDomain = "localhost";
+                } else if (hostname.endsWith("connectpro.in")) {
+                    baseDomain = "connectpro.in";
                 } else {
-                    navigate("/my-feed"); // fallback to user feed
+                    baseDomain = hostname; // Custom domain fallback (if running on magicallysocial.cloud etc)
+                }
+
+                // Important for local development with ports like 5173
+                const port = window.location.port ? `:${window.location.port}` : "";
+                const protocol = window.location.protocol;
+
+                const buildCrossDomainUrl = (subdomain: string, path: string) => {
+                    const searchParams = new URLSearchParams();
+                    searchParams.set("token", token);
+                    if (companyModules) searchParams.set("modules", companyModules);
+                    if (companyName) searchParams.set("companyName", companyName);
+                    return `${protocol}//${subdomain}.${baseDomain}${port}${path}?${searchParams.toString()}`;
+                };
+
+                if (isSuperAdmin) {
+                    if (userRole === "SUPER_ADMIN") navigate("/super-admin");
+                    else { toast.error("Unauthorized access to Super Admin portal"); localStorage.clear(); }
+                } else if (isCompanyAdmin) {
+                    if (userRole === "ADMIN" || userRole === "SUPER_ADMIN") navigate("/admin");
+                    else { toast.error("Unauthorized access to Company Admin portal"); localStorage.clear(); }
+                } else if (isCustomDomain) {
+                    navigate("/my-feed");
+                } else {
+                    // We are at the main domain, redirect across subdomains with token payload
+                    toast.success("Login successful, redirecting to portal...");
+                    if (userRole === "SUPER_ADMIN") {
+                        window.location.href = buildCrossDomainUrl("superadmin", "/super-admin");
+                    } else if (userRole === "ADMIN") {
+                        window.location.href = buildCrossDomainUrl("company", "/admin");
+                    } else {
+                        window.location.href = buildCrossDomainUrl("user", "/my-feed");
+                    }
+                    return; // Prevent navigating below
                 }
 
                 toast.success("Login successful");

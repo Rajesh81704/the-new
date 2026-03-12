@@ -19,9 +19,10 @@ interface Member {
   email: string;
   city: string;
   status: "active" | "inactive";
+  password?: string;
 }
 
-const emptyMember = { id: "", name: "", role: "", company: "", category: "", email: "", city: "", status: "active" as const };
+const emptyMember = { id: "", name: "", role: "", company: "", category: "", email: "", city: "", status: "active" as const, password: "" };
 
 const AdminMembers = () => {
   const navigate = useNavigate();
@@ -31,28 +32,28 @@ const AdminMembers = () => {
   const [editing, setEditing] = useState<Member | null>(null);
   const [form, setForm] = useState<Omit<Member, "id">>(emptyMember);
 
-  useEffect(() => {
-    const fetchMembers = async () => {
-      try {
-        const res = await api.get("/admin/members");
-        if (res.data?.data) {
-          // Map backend user schema to the frontend Member format
-          const mapped = res.data.data.map((u: any) => ({
-            id: u.id,
-            name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'User',
-            role: u.role || 'Member',
-            company: u.companyId || 'Current Company',
-            category: 'General',
-            email: u.email,
-            city: 'N/A',
-            status: 'active'
-          }));
-          setMembers(mapped);
-        }
-      } catch (error) {
-        toast.error("Failed to load members");
+  const fetchMembers = async () => {
+    try {
+      const res = await api.get("/admin/members");
+      if (res.data?.data) {
+        const mapped = res.data.data.map((u: any) => ({
+          id: u.id,
+          name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'User',
+          role: u.role || 'Member',
+          company: u.companyId || 'Current Company',
+          category: 'General',
+          email: u.email,
+          city: 'N/A',
+          status: 'active'
+        }));
+        setMembers(mapped);
       }
-    };
+    } catch (error) {
+      toast.error("Failed to load members");
+    }
+  };
+
+  useEffect(() => {
     fetchMembers();
   }, []);
 
@@ -63,21 +64,38 @@ const AdminMembers = () => {
   const openCreate = () => { setEditing(null); setForm(emptyMember); setDialogOpen(true); };
   const openEdit = (m: Member) => { setEditing(m); setForm(m); setDialogOpen(true); };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.name || !form.email) { toast.error("Name and email are required"); return; }
-    if (editing) {
-      setMembers(prev => prev.map(m => m.id === editing.id ? { ...m, ...form } : m));
-      toast.success("Member updated");
-    } else {
-      setMembers(prev => [...prev, { ...form, id: Date.now().toString() }]);
-      toast.success("Member added");
+
+    const [firstName, ...rest] = form.name.split(' ');
+    const lastName = rest.join(' ');
+    const payload: any = { email: form.email, firstName, lastName, role: form.role || 'MEMBER' };
+    if (!editing) payload.password = form.password;
+
+    try {
+      if (editing) {
+        await api.put(`/admin/members/${editing.id}`, payload);
+        toast.success("Member updated");
+      } else {
+        await api.post("/admin/members", payload);
+        toast.success("Member added");
+      }
+      setDialogOpen(false);
+      fetchMembers();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to save member");
     }
-    setDialogOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    setMembers(prev => prev.filter(m => m.id !== id));
-    toast.success("Member deleted");
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this member?")) return;
+    try {
+      await api.delete(`/admin/members/${id}`);
+      toast.success("Member deleted");
+      fetchMembers();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to delete member");
+    }
   };
 
   const loginAsUser = async (userId: string) => {
@@ -203,6 +221,17 @@ const AdminMembers = () => {
                 <Input value={(form as any)[f.key]} onChange={e => setForm(prev => ({ ...prev, [f.key]: e.target.value }))} />
               </div>
             ))}
+            {!editing && (
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-primary">Initial Password</Label>
+                <Input
+                  type="password"
+                  placeholder="Set initial password"
+                  value={form.password}
+                  onChange={e => setForm(prev => ({ ...prev, password: e.target.value }))}
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
