@@ -40,10 +40,11 @@ import SuperAdminCompanies from "./pages/super-admin/SuperAdminCompanies";
 import SuperAdminBilling from "./pages/super-admin/SuperAdminBilling";
 import SuperAdminSettings from "./pages/super-admin/SuperAdminSettings";
 import SuperAdminApplications from "./pages/super-admin/SuperAdminApplications";
-import CompanyLandingPage from "./pages/CompanyLandingPage";
+import CompanyLandingPage from "./pages/LandingPages/CompanyLandingPage";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ModuleGuard } from "@/components/ModuleGuard";
+import PremiumLandingPage from "./pages/LandingPages/PremiumLandingPage";
 import UserLandingPage from "./pages/LandingPages/UserLandingPage";
 import CompanyAdminLandingPage from "./pages/LandingPages/CompanyAdminLandingPage";
 import SuperAdminLandingPage from "./pages/LandingPages/SuperAdminLandingPage";
@@ -55,21 +56,27 @@ const queryClient = new QueryClient();
 
 const getAppVariant = () => {
   const hostname = window.location.hostname;
+  const parts = hostname.split(".");
 
-  if (
-    hostname === "localhost" ||
-    hostname === "127.0.0.1" ||
-    hostname === "connectpro.in" ||
-    hostname === "www.connectpro.in"
-  ) {
+  // Local development
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
     return "main";
   }
 
-  if (hostname.startsWith("admin.") || hostname.startsWith("superadmin.")) return "superadmin";
-  if (hostname.startsWith("company.")) return "companyadmin";
-  if (hostname.startsWith("user.")) return "user";
+  // Detect based on subdomain parts
+  if (parts.length >= 3) {
+    const subdomain = parts[0].toLowerCase();
+    if (subdomain === "admin" || subdomain === "superadmin") return "superadmin";
+    if (subdomain === "company") return "companyadmin";
+    if (subdomain === "user") return "user";
+    
+    // If it's something like "mycommunity.yourdomain.com", we might want to treat it as "customdomain" 
+    // or handle it as a specific community portal. For now, following your logic:
+    return "customdomain";
+  }
 
-  return "customdomain";
+  // Main domain (e.g., connectpro.in or yourdomain.com)
+  return "main";
 };
 
 import { useEffect } from "react";
@@ -124,6 +131,24 @@ const AppRoutes = () => {
           <Route path="/admin/membership" element={<AdminMembership />} />
         </Route>
 
+        {/* User Routes (for Super Admin Impersonation) */}
+        <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+          <Route path="/friends" element={<ModuleGuard moduleId="friends"><FriendsPage /></ModuleGuard>} />
+          <Route path="/events" element={<ModuleGuard moduleId="events"><EventsPage /></ModuleGuard>} />
+          <Route path="/my-feed" element={<MyFeedPage />} />
+          <Route path="/members" element={<ModuleGuard moduleId="members"><MembersPage /></ModuleGuard>} />
+          <Route path="/podcast" element={<ModuleGuard moduleId="podcasts"><PodcastPage /></ModuleGuard>} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/profile/:id" element={<ProfilePage />} />
+          <Route path="/my-profile" element={<MyProfilePage />} />
+          <Route path="/my-invoices" element={<MyInvoicesPage />} />
+          <Route path="/resources" element={<ModuleGuard moduleId="resources"><ResourcesPage /></ModuleGuard>} />
+          <Route path="/blogs" element={<ModuleGuard moduleId="blogs"><BlogsPage /></ModuleGuard>} />
+          <Route path="/blogs/:slug" element={<ModuleGuard moduleId="blogs"><BlogDetailPage /></ModuleGuard>} />
+          <Route path="/share-business" element={<ShareBusinessPage />} />
+          <Route path="/home" element={<HomePage />} />
+        </Route>
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     );
@@ -146,6 +171,24 @@ const AppRoutes = () => {
           <Route path="/admin/terms" element={<AdminTerms />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/admin/membership" element={<AdminMembership />} />
+        </Route>
+
+        {/* User Routes (for Company Admin Access) */}
+        <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+          <Route path="/friends" element={<ModuleGuard moduleId="friends"><FriendsPage /></ModuleGuard>} />
+          <Route path="/events" element={<ModuleGuard moduleId="events"><EventsPage /></ModuleGuard>} />
+          <Route path="/my-feed" element={<MyFeedPage />} />
+          <Route path="/members" element={<ModuleGuard moduleId="members"><MembersPage /></ModuleGuard>} />
+          <Route path="/podcast" element={<ModuleGuard moduleId="podcasts"><PodcastPage /></ModuleGuard>} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/profile/:id" element={<ProfilePage />} />
+          <Route path="/my-profile" element={<MyProfilePage />} />
+          <Route path="/my-invoices" element={<MyInvoicesPage />} />
+          <Route path="/resources" element={<ModuleGuard moduleId="resources"><ResourcesPage /></ModuleGuard>} />
+          <Route path="/blogs" element={<ModuleGuard moduleId="blogs"><BlogsPage /></ModuleGuard>} />
+          <Route path="/blogs/:slug" element={<ModuleGuard moduleId="blogs"><BlogDetailPage /></ModuleGuard>} />
+          <Route path="/share-business" element={<ShareBusinessPage />} />
+          <Route path="/home" element={<HomePage />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
@@ -230,7 +273,7 @@ const AppRoutes = () => {
   // Main Landing Page
   return (
     <Routes>
-      <Route path="/" element={<CompanyLandingPage />} />
+      <Route path="/" element={<PremiumLandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />

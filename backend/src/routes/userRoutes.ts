@@ -8,6 +8,7 @@ const userController = new UserController();
 
 router.use(authenticate);
 
+router.get('/me', asyncErrorWrapper((req, res) => userController.getMe(req, res) as any));
 router.get('/members', asyncErrorWrapper((req, res) => userController.getMembers(req, res) as any));
 router.get('/profile/:userId', asyncErrorWrapper((req, res) => userController.getProfile(req, res) as any));
 router.put('/profile', asyncErrorWrapper((req, res) => userController.updateProfile(req, res) as any));

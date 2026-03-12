@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export interface BusinessCard {
   id: string;
@@ -20,24 +20,121 @@ export interface BusinessCard {
 
 interface BusinessCardContextType {
   cards: BusinessCard[];
-  addCard: (card: BusinessCard) => void;
-  updateCard: (card: BusinessCard) => void;
-  deleteCard: (id: string) => void;
+  addCard: (card: Omit<BusinessCard, "id">) => Promise<void>;
+  updateCard: (card: BusinessCard) => Promise<void>;
+  deleteCard: (id: string) => Promise<void>;
   getCard: (id: string) => BusinessCard | undefined;
+  loading: boolean;
 }
 
 const BusinessCardContext = createContext<BusinessCardContextType | undefined>(undefined);
 
 export const BusinessCardProvider = ({ children }: { children: ReactNode }) => {
   const [cards, setCards] = useState<BusinessCard[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const addCard = (card: BusinessCard) => setCards((prev) => [...prev, card]);
-  const updateCard = (card: BusinessCard) => setCards((prev) => prev.map((c) => (c.id === card.id ? card : c)));
-  const deleteCard = (id: string) => setCards((prev) => prev.filter((c) => c.id !== id));
+  useEffect(() => {
+    const fetchCards = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+
+        const res = await fetch('http://localhost:5000/api/users/business-cards', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.data) {
+            setCards(data.data);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch business cards", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCards();
+  }, []);
+
+  const addCard = async (card: Omit<BusinessCard, "id">) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const res = await fetch('http://localhost:5000/api/users/business-cards', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(card)
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.data) {
+          setCards((prev) => [data.data, ...prev]);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to create business card", error);
+    }
+  };
+
+  const updateCard = async (card: BusinessCard) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const res = await fetch(`http://localhost:5000/api/users/business-cards/${card.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(card)
+      });
+
+      if (res.ok) {
+        setCards((prev) => prev.map((c) => (c.id === card.id ? card : c)));
+      }
+    } catch (error) {
+      console.error("Failed to update business card", error);
+    }
+  };
+
+  const deleteCard = async (id: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const res = await fetch(`http://localhost:5000/api/users/business-cards/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        setCards((prev) => prev.filter((c) => c.id !== id));
+      }
+    } catch (error) {
+      console.error("Failed to delete business card", error);
+    }
+  };
+
   const getCard = (id: string) => cards.find((c) => c.id === id);
 
   return (
-    <BusinessCardContext.Provider value={{ cards, addCard, updateCard, deleteCard, getCard }}>
+    <BusinessCardContext.Provider value={{ cards, addCard, updateCard, deleteCard, getCard, loading }}>
       {children}
     </BusinessCardContext.Provider>
   );

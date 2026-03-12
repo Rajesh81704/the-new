@@ -10,6 +10,16 @@ export class UserController extends BaseController {
         this.userService = new UserService();
     }
 
+    async getMe(req: Request, res: Response): Promise<void> {
+        try {
+            const userId = (req as any).user.userId;
+            const profile = await this.userService.getProfile(userId);
+            this.handleSuccess(res, profile);
+        } catch (error) {
+            this.handleError(error, res, 'UserController.getMe');
+        }
+    }
+
     async getMembers(req: Request, res: Response): Promise<void> {
         try {
             const companyId = (req as any).user.companyId;
