@@ -19,17 +19,8 @@ export default function LoginPage() {
     const isSuperAdmin = hostname.startsWith("admin.") || hostname.startsWith("superadmin.");
     const isCompanyAdmin = hostname.startsWith("company.");
     const isUserSubdomain = hostname.startsWith("user.");
-    const isCustomDomain = !(
-        hostname === "localhost" ||
-        hostname === "127.0.0.1" ||
-        hostname === "connectpro.in" ||
-        hostname === "www.connectpro.in" ||
-        isSuperAdmin ||
-        isCompanyAdmin ||
-        isUserSubdomain
-    );
 
-    // Contextual labels per subdomain role
+    // Only three subdomain types: superadmin., company., user. — main domain requires company code
     const loginContext = isSuperAdmin
         ? {
             title: "Magically Super",
@@ -48,36 +39,27 @@ export default function LoginPage() {
                 formTitle: "Company Admin Sign In",
                 formSubtitle: "Apni email, password, aur Company ID enter karein apne admin dashboard tak pahunchne ke liye.",
             }
-            : isCustomDomain
+            : isUserSubdomain
                 ? {
                     title: "Welcome Back",
-                    badge: "👤 Secure Portal",
+                    badge: "👤 Member Portal",
                     headline: "Your Professional Network",
-                    tagline: "Sign in to access your customized network portal, feed, and resources.",
-                    formTitle: "Sign In",
+                    tagline: "Sign in with your email and password to access your network.",
+                    formTitle: "Member Sign In",
                     formSubtitle: "Enter your email and password to continue.",
                 }
-                : isUserSubdomain
-                    ? {
-                        title: "Welcome Back",
-                        badge: "👤 Member Portal",
-                        headline: "Your Professional Network",
-                        tagline: "Sign in with your email and password to access your network.",
-                        formTitle: "Member Sign In",
-                        formSubtitle: "Enter your email and password to continue.",
-                    }
-                    : {
-                        title: "Magically Super",
-                        badge: "👤 Member Login Portal",
-                        headline: "Your Professional Network",
-                        tagline: "Yahaan aap kisi bhi company ke member ki tarah login kar sakte hain. Apna email, password, aur apni company ka unique Company ID enter karein.",
-                        formTitle: "Member Sign In",
-                        formSubtitle: "Apni company ka Company ID zaroor daalein — yahi aapko sahi network se jodega.",
-                    };
+                : {
+                    title: "Magically Super",
+                    badge: "👤 Member Login Portal",
+                    headline: "Your Professional Network",
+                    tagline: "Yahaan aap kisi bhi company ke member ki tarah login kar sakte hain. Apna email, password, aur apni company ka unique Company ID enter karein.",
+                    formTitle: "Member Sign In",
+                    formSubtitle: "Apni company ka Company ID zaroor daalein — yahi aapko sahi network se jodega.",
+                };
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email || !password || (!isSuperAdmin && !isCustomDomain && !isUserSubdomain && !companyCode)) {
+        if (!email || !password || (!isSuperAdmin && !isUserSubdomain && !companyCode)) {
             toast.error("Please fill in all required fields");
             return;
         }
@@ -85,9 +67,7 @@ export default function LoginPage() {
         try {
             setLoading(true);
             const payload: any = { email, password };
-            if (isCustomDomain) {
-                payload.domain = hostname;
-            } else if (isUserSubdomain) {
+            if (isUserSubdomain) {
                 // Extract the company subdomain from user.SUBDOMAIN.domain
                 // e.g. user.magicallysocial.localhost -> subdomain = magicallysocial
                 const parts = hostname.split('.');
@@ -127,7 +107,7 @@ export default function LoginPage() {
                 } else if (hostname.endsWith("connectpro.in")) {
                     baseDomain = "connectpro.in";
                 } else {
-                    baseDomain = hostname; // Custom domain fallback (if running on magicallysocial.cloud etc)
+                    baseDomain = hostname;
                 }
 
                 // Important for local development with ports like 5173
@@ -143,13 +123,29 @@ export default function LoginPage() {
                 };
 
                 if (isSuperAdmin) {
-                    if (userRole === "SUPER_ADMIN") navigate("/super-admin");
-                    else { toast.error("Unauthorized access to Super Admin portal"); localStorage.clear(); }
+                    if (userRole === "SUPER_ADMIN") {
+                        // Already on superadmin/admin subdomain, go to super admin dashboard
+                        navigate("/super-admin");
+                    } else {
+                        toast.error("Unauthorized access to Super Admin portal");
+                        localStorage.clear();
+                    }
                 } else if (isCompanyAdmin) {
-                    if (userRole === "ADMIN" || userRole === "SUPER_ADMIN") navigate("/admin");
-                    else { toast.error("Unauthorized access to Company Admin portal"); localStorage.clear(); }
-                } else if (isCustomDomain) {
-                    navigate("/my-feed");
+                    if (userRole === "ADMIN" || userRole === "SUPER_ADMIN") {
+                        // Only company admins (and optionally super admins) allowed on company subdomain
+                        navigate("/admin");
+                    } else {
+                        toast.error("Unauthorized access to Company Admin portal");
+                        localStorage.clear();
+                    }
+                } else if (isUserSubdomain) {
+                    // On user subdomain, only member-style access is allowed
+                    if (userRole === "MEMBER" || !userRole) {
+                        navigate("/my-feed");
+                    } else {
+                        toast.error("Unauthorized access to Member portal");
+                        localStorage.clear();
+                    }
                 } else {
                     // We are at the main domain, redirect across subdomains with token payload
                     toast.success("Login successful, redirecting to portal...");
@@ -263,7 +259,7 @@ export default function LoginPage() {
                                     </div>
                                 </div>
 
-                                {!isSuperAdmin && !isCustomDomain && !isUserSubdomain && (
+                                {!isSuperAdmin && !isUserSubdomain && (
                                     <div className="space-y-1.5">
                                         <Label htmlFor="companyCode" className="text-xs ml-1 text-muted-foreground uppercase tracking-wider font-semibold">Company ID</Label>
                                         <div className="relative">

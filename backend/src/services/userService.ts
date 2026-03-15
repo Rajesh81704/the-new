@@ -32,7 +32,11 @@ export class UserService {
                 headline: true,
                 city: true,
                 category: true,
+                website: true,
                 metadata: true,
+                company: {
+                    select: { name: true, logoUrl: true, activeModules: true }
+                },
             }
         });
     }

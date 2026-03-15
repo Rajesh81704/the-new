@@ -16,20 +16,12 @@ export default function ForgotPasswordPage() {
 
     const hostname = window.location.hostname;
     const isSuperAdmin = hostname.startsWith("admin.") || hostname.startsWith("superadmin.");
-    const isCompanyAdmin = hostname.startsWith("company.");
-    const isCustomDomain = !(
-        hostname === "localhost" ||
-        hostname === "127.0.0.1" ||
-        hostname === "connectpro.in" ||
-        hostname === "www.connectpro.in" ||
-        isSuperAdmin ||
-        isCompanyAdmin ||
-        hostname.startsWith("user.")
-    );
+    const isUserSubdomain = hostname.startsWith("user.");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email || (!isSuperAdmin && !isCustomDomain && !companyCode)) {
+        const needsCompanyCode = !isSuperAdmin && !isUserSubdomain;
+        if (!email || (needsCompanyCode && !companyCode)) {
             toast.error("Please fill in all required fields");
             return;
         }
@@ -37,8 +29,9 @@ export default function ForgotPasswordPage() {
         try {
             setLoading(true);
             const payload: any = { email };
-            if (isCustomDomain) {
-                payload.domain = hostname;
+            if (isUserSubdomain) {
+                const parts = hostname.split(".");
+                if (parts.length >= 2) payload.subdomain = parts[1];
             } else if (!isSuperAdmin) {
                 payload.companyCode = companyCode;
             }
@@ -109,7 +102,7 @@ export default function ForgotPasswordPage() {
                                         </div>
                                     </div>
 
-                                    {!isSuperAdmin && !isCustomDomain && (
+                                    {!isSuperAdmin && !isUserSubdomain && (
                                         <div className="space-y-1.5">
                                             <Label htmlFor="companyCode" className="text-xs ml-1 text-muted-foreground uppercase tracking-wider font-semibold">Company ID</Label>
                                             <div className="relative">

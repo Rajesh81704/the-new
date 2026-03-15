@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import { Role } from '@prisma/client';
 import { prisma } from '../utils/prisma';
 import { unifiedConfig } from '../config/unifiedConfig';
 import { emailService } from './emailService';
@@ -46,12 +47,15 @@ export class AuthService {
         let user: any;
         let company: any = null;
 
-        // Super admins should be able to log in without any tenant context.
-        // If credentials match a super admin account, we return early regardless
-        // of companyCode/domain provided by the client.
-        const superAdminCandidate = await prisma.user.findFirst({
-            where: { email: data.email, role: 'SUPER_ADMIN' },
-        });
+        // Super admins: log in without tenant context. Use raw SQL to avoid Prisma
+        // enum/column issues with some DB schemas (camelCase vs snake_case, Role enum).
+        type SuperAdminRow = { id: string; email: string; passwordHash: string; role: string; companyId: string | null; firstName: string | null; lastName: string | null };
+        const superAdminRows = await prisma.$queryRaw<SuperAdminRow[]>`
+            SELECT id, email, "passwordHash", role::text AS role,
+                   "companyId", "firstName", "lastName"
+            FROM users WHERE email = ${data.email} AND role::text = 'SUPER_ADMIN' LIMIT 1
+        `;
+        const superAdminCandidate = superAdminRows[0] ?? null;
 
         if (superAdminCandidate) {
             const superAdminPasswordMatch = await bcrypt.compare(data.password, superAdminCandidate.passwordHash);
@@ -84,20 +88,18 @@ export class AuthService {
                 where: { email: { equals: data.email, mode: 'insensitive' }, companyId: company.id },
             });
             if (!user) console.error(`Login Failed: User '${data.email}' not found under companyCode '${data.companyCode}'`);
-        } else if (data.domain) {
-            company = await prisma.company.findUnique({
-                where: { customDomain: data.domain }
-            });
-            if (!company) {
-                throw new Error('Invalid custom domain or company not found');
-            }
-            user = await prisma.user.findFirst({
-                where: { email: { equals: data.email, mode: 'insensitive' }, companyId: company.id },
-            });
         } else if (data.subdomain) {
+            const subdomain = String(data.subdomain).toLowerCase().trim();
             company = await prisma.company.findUnique({
-                where: { subdomain: data.subdomain }
+                where: { subdomain },
             });
+            // Local dev: user.localhost → subdomain "localhost"; resolve to first company with a subdomain
+            if (!company && (subdomain === 'localhost' || subdomain === '127.0.0.1')) {
+                company = await prisma.company.findFirst({
+                    where: { subdomain: { not: null } },
+                    orderBy: { createdAt: 'asc' },
+                });
+            }
             if (!company) {
                 throw new Error('Company not found for this subdomain');
             }
@@ -141,22 +143,29 @@ export class AuthService {
                 where: { companyCode: data.companyCode }
             });
             if (company) {
-                user = await prisma.user.findUnique({
-                    where: { email_companyId: { email: data.email, companyId: company.id } },
+                user = await prisma.user.findFirst({
+                    where: { email: { equals: data.email, mode: 'insensitive' }, companyId: company.id },
                 });
             }
-        } else if (data.domain) {
-            const company = await prisma.company.findUnique({
-                where: { customDomain: data.domain }
+        } else if (data.subdomain) {
+            const subdomain = String(data.subdomain).toLowerCase().trim();
+            let company = await prisma.company.findUnique({
+                where: { subdomain },
             });
+            if (!company && (subdomain === 'localhost' || subdomain === '127.0.0.1')) {
+                company = await prisma.company.findFirst({
+                    where: { subdomain: { not: null } },
+                    orderBy: { createdAt: 'asc' },
+                });
+            }
             if (company) {
-                user = await prisma.user.findUnique({
-                    where: { email_companyId: { email: data.email, companyId: company.id } },
+                user = await prisma.user.findFirst({
+                    where: { email: { equals: data.email, mode: 'insensitive' }, companyId: company.id },
                 });
             }
         } else {
             user = await prisma.user.findFirst({
-                where: { email: data.email, role: 'SUPER_ADMIN' },
+                where: { email: { equals: data.email, mode: 'insensitive' }, role: 'SUPER_ADMIN' },
             });
         }
 

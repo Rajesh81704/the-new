@@ -16,8 +16,10 @@ export abstract class BaseController {
         let statusCode = 500;
         if (message.includes('Invalid credentials') || message.includes('Unauthorized') || message.includes('Invalid company code')) {
             statusCode = 401;
-        } else if (message.includes('already exists') || message.includes('not found')) {
+        } else if (message.includes('already exists') || message.includes('not found') || message.includes('Invalid or expired reset token')) {
             statusCode = 400;
+        } else if (message.includes('Admin access required') || message.includes('Super admin access required')) {
+            statusCode = 403;
         }
 
         res.status(statusCode).json({

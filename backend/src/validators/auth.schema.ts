@@ -11,13 +11,13 @@ export const loginSchema = z.object({
     email: z.string().email(),
     password: z.string(),
     companyCode: z.string().optional(),
-    domain: z.string().optional(),
+    subdomain: z.string().optional(),
 });
 
 export const forgotPasswordSchema = z.object({
     email: z.string().email(),
     companyCode: z.string().optional(),
-    domain: z.string().optional(),
+    subdomain: z.string().optional(),
 });
 
 export const resetPasswordSchema = z.object({
